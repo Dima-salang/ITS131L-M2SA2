@@ -27,7 +27,7 @@ root.maxsize(1500, 700)
 root.minsize(1500, 700)
 
 
-crud_notebook = tkb.Notebook(root, bootstyle="warning")
+crud_notebook = tkb.Notebook(root, bootstyle="primary")
 crud_notebook.pack(fill='both', expand=1)
 
 # Frames for organization
@@ -271,6 +271,7 @@ def init_tables():
         payroll_table = """
                         CREATE TABLE IF NOT EXISTS PAYROLL
                         (
+                            payroll_no INT PRIMARY KEY AUTO_INCREMENT,
                             fac_no INT,
                             FOREIGN KEY(fac_no) REFERENCES FACULTY(fac_no),
                             fac_pay INT,
@@ -282,6 +283,7 @@ def init_tables():
         positions_table = """
                         CREATE TABLE IF NOT EXISTS POSITIONS
                         (
+                            positions_no INT PRIMARY KEY AUTO_INCREMENT,
                             fac_no INT,
                             FOREIGN KEY(fac_no) REFERENCES FACULTY(fac_no),
                             pos VARCHAR(50),
@@ -293,6 +295,7 @@ def init_tables():
         coord_table = """
                         CREATE TABLE IF NOT EXISTS COORD
                         (
+                            coord_no INT PRIMARY KEY AUTO_INCREMENT,
                             school_no CHAR(4),
                             fac_no INT,
                             from_date DATE,
@@ -305,6 +308,7 @@ def init_tables():
         dept_fac_table = """
                         CREATE TABLE IF NOT EXISTS DEPT_FAC
                         (
+                            dept_fac_no INT PRIMARY KEY AUTO_INCREMENT,
                             fac_no INT,
                             school_no CHAR(4),
                             from_date DATE,
@@ -494,7 +498,7 @@ def search_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM FACULTY WHERE fac_lname LIKE %s OR fac_fname LIKE %s OR birth_date LIKE %s OR hire_date LIKE %s"
+    query = "SELECT * FROM FACULTY WHERE fac_no LIKE %s OR fac_lname LIKE %s OR fac_fname LIKE %s OR birth_date LIKE %s OR hire_date LIKE %s"
     cursor.execute(query, ('%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%', '%'+keyword+'%'))
     rows = cursor.fetchall()
     treeview.delete(*treeview.get_children())
@@ -660,6 +664,7 @@ def delete_record_school():
     selected_item = school_treeview.selection()
     if selected_item:
         delete_data_school(school_treeview.item(selected_item)['values'][0])
+        print(school_treeview.item(selected_item)['values'][0])
         clear_entries_school()
         populate_table_school()
     else:
@@ -794,14 +799,16 @@ def select_item_payroll(event):
     selected_item = payroll_treeview.selection()
     if selected_item:
         values = payroll_treeview.item(selected_item[0], 'values')
+        payroll_no_entry.delete(0, tk.END)
+        payroll_no_entry.insert(0, values[0])
         payroll_fac_no_entry.delete(0, tk.END)
-        payroll_fac_no_entry.insert(0, values[0])
+        payroll_fac_no_entry.insert(0, values[1])
         payroll_pay_amount_entry.delete(0, tk.END)
-        payroll_pay_amount_entry.insert(0, values[1])
+        payroll_pay_amount_entry.insert(0, values[2])
         payroll_from_date_entry.delete(0, tk.END)
-        payroll_from_date_entry.insert(0, values[2])
+        payroll_from_date_entry.insert(0, values[3])
         payroll_to_date_entry.delete(0, tk.END)
-        payroll_to_date_entry.insert(0, values[3])
+        payroll_to_date_entry.insert(0, values[4])
 
 
 def insert_data_payroll(payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date):
@@ -822,26 +829,26 @@ def insert_data_payroll(payroll_fac_no, payroll_pay_amount, payroll_from_date, p
     conn.close()
 
 
-def update_data_payroll(payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date):
+def update_data_payroll(payroll_no, payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date):
     global username, password, db
     print("update_data called db_conn")
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE PAYROLL SET fac_no=%s, fac_pay=%s, from_date=%s, to_date=%s WHERE fac_no=%s AND from_date=%s AND to_date=%s",
-                       (payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date, payroll_fac_no, payroll_from_date, payroll_to_date))
+        cursor.execute("UPDATE PAYROLL SET fac_no=%s, fac_pay=%s, from_date=%s, to_date=%s WHERE payroll_no=%s",
+                       (payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date, payroll_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     finally:
         conn.close()
 
 
-def delete_data_payroll(payroll_fac_no, payroll_from_date, payroll_to_date):
+def delete_data_payroll(payroll_no):
     global username, password, db
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM PAYROLL WHERE fac_no=%s AND from_date=%s AND to_date=%s", (payroll_fac_no, payroll_from_date, payroll_to_date))
+        cursor.execute("DELETE FROM PAYROLL WHERE payroll_no=%s", (payroll_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     finally:
@@ -850,7 +857,7 @@ def delete_data_payroll(payroll_fac_no, payroll_from_date, payroll_to_date):
 def delete_record_payroll():
     selected_item = payroll_treeview.selection()
     if selected_item:
-        delete_data_school(payroll_treeview.item(selected_item)['values'][0])
+        delete_data_payroll(payroll_treeview.item(selected_item)['values'][0])
         clear_entries_payroll()
         populate_table_payroll()
     else:
@@ -868,6 +875,9 @@ def add_record_payroll():
     payroll_to_date_value = payroll_to_date_entry.get()
 
     if payroll_fac_no_value and payroll_pay_amount_value and payroll_from_date_value and payroll_to_date_value:
+        if payroll_from_date_value > payroll_to_date_value:
+            messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+            return
         try:
             insert_data_payroll(payroll_fac_no_value, payroll_pay_amount_value, payroll_from_date_value, payroll_to_date_value)
             print("payroll inserted data")
@@ -884,14 +894,15 @@ def add_record_payroll():
 def update_record_payroll():
     selected_item = payroll_treeview.selection()
     if selected_item:
-        update_data_payroll(payroll_treeview.item(selected_item)['values'][0], payroll_pay_amount_entry.get(), payroll_from_date_entry.get(), payroll_to_date_entry.get())
+        update_data_payroll(payroll_treeview.item(selected_item)['values'][0], payroll_fac_no_entry.get() ,payroll_pay_amount_entry.get(), payroll_from_date_entry.get(), payroll_to_date_entry.get())
+        print(payroll_treeview.item(selected_item)['values'][0])
         clear_entries_payroll()
         populate_table_payroll()
     else:
         messagebox.showerror("Error", "Please select a record to update.")
 
 def clear_entries_payroll():
-    for entry in [payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry, payroll_to_date_entry]:
+    for entry in [payroll_no_entry, payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry, payroll_to_date_entry]:
         entry.delete(0, tk.END)
 
 
@@ -911,7 +922,7 @@ def search_payroll_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM PAYROLL WHERE fac_no LIKE %s OR fac_pay LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
+    query = "SELECT * FROM PAYROLL WHERE payroll_no LIKE %s OR fac_no LIKE %s OR fac_pay LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     payroll_treeview.delete(*payroll_treeview.get_children())
@@ -934,7 +945,7 @@ def payroll_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Faculty Number", "Pay Amount", "From Date", "To Date"])
+                writer.writerow(["Payroll Number", "Faculty Number", "Pay Amount", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -953,6 +964,8 @@ def payroll_write_to_csv():
 
 def payroll_sort_by(search_column, opt_ord):
     match search_column:
+        case "Payroll Number":
+            search_column = "payroll_no"
         case "Faculty Number":
             search_column = "fac_no"
         case "Pay Amount":
@@ -991,14 +1004,16 @@ def select_item_positions(event):
     selected_item = positions_treeview.selection()
     if selected_item:
         values = positions_treeview.item(selected_item[0], 'values')
+        positions_no_entry.delete(0, tk.END)
+        positions_no_entry.insert(0, values[0])
         positions_fac_no_entry.delete(0, tk.END)
-        positions_fac_no_entry.insert(0, values[0])
+        positions_fac_no_entry.insert(0, values[1])
         positions_position_entry.delete(0, tk.END)
-        positions_position_entry.insert(0, values[1])
+        positions_position_entry.insert(0, values[2])
         positions_from_date_entry.delete(0, tk.END)
-        positions_from_date_entry.insert(0, values[2])
+        positions_from_date_entry.insert(0, values[3])
         positions_to_date_entry.delete(0, tk.END)
-        positions_to_date_entry.insert(0, values[3])
+        positions_to_date_entry.insert(0, values[4])
 
 
 def insert_data_positions(positions_fac_no, positions_position, positions_from_date, positions_to_date):
@@ -1019,33 +1034,33 @@ def insert_data_positions(positions_fac_no, positions_position, positions_from_d
     conn.close()
 
 
-def update_data_positions(positions_fac_no, positions_position, positions_from_date, positions_to_date):
+def update_data_positions(positions_no, positions_fac_no, positions_position, positions_from_date, positions_to_date):
     global username, password, db
     print("update_data called db_conn")
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE POSITIONS SET fac_no=%s, pos=%s, from_date=%s, to_date=%s WHERE fac_no=%s AND from_date=%s AND to_date=%s",
-                       (positions_fac_no, positions_position, positions_from_date, positions_to_date))
+        cursor.execute("UPDATE POSITIONS SET fac_no=%s, pos=%s, from_date=%s, to_date=%s WHERE positions_no=%s",
+                       (positions_fac_no, positions_position, positions_from_date, positions_to_date, positions_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     finally:
         conn.close()
 
 
-def delete_data_positions(positions_fac_no, positions_from_date, positions_to_date):
+def delete_data_positions(positions_no):
     global username, password, db
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM POSITIONS WHERE fac_no=%s AND from_date=%s AND to_date=%s", (positions_fac_no, positions_from_date, positions_to_date))
+        cursor.execute("DELETE FROM POSITIONS WHERE positions_no=%s", (positions_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     finally:
         conn.close()
 
 def clear_entries_positions():
-    for entry in [payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry, payroll_to_date_entry]:
+    for entry in [positions_no_entry, payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry, payroll_to_date_entry]:
         entry.delete(0, tk.END)
 
 
@@ -1065,7 +1080,7 @@ def populate_table_positions():
 def delete_record_positions():
     selected_item = positions_treeview.selection()
     if selected_item:
-        delete_data_school(positions_treeview.item(selected_item)['values'][0])
+        delete_data_positions(positions_treeview.item(selected_item)['values'][0])
         clear_entries_positions()
         populate_table_positions()
     else:
@@ -1081,7 +1096,11 @@ def add_record_positions():
     positions_from_date_value = positions_from_date_entry.get()
     positions_to_date_value = positions_to_date_entry.get()
 
-    if positions_fac_no_value and positions_position_value and positions_from_date_value and positions_to_date_value:
+    if positions_fac_no_value and positions_position_value and positions_from_date_value:
+        if positions_to_date_value:
+            if positions_from_date_value > positions_to_date_value:
+                messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+                return
         try:
             insert_data_positions(positions_fac_no_value, positions_position_value, positions_from_date_value, positions_to_date_value)
             print("positions inserted data")
@@ -1098,7 +1117,7 @@ def add_record_positions():
 def update_record_positions():
     selected_item = positions_treeview.selection()
     if selected_item:
-        update_data_positions(positions_treeview.item(selected_item)['values'][0],
+        update_data_positions(positions_treeview.item(selected_item)['values'][0], positions_fac_no_entry.get(),
                     positions_position_entry.get(), positions_from_date_entry.get(), positions_to_date_entry.get())
         clear_entries_positions()
         populate_table_positions()
@@ -1110,7 +1129,7 @@ def search_positions_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM PAYROLL WHERE fac_no LIKE %s OR pos LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
+    query = "SELECT * FROM PAYROLL WHERE positions_no LIKE %s OR fac_no LIKE %s OR pos LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     positions_treeview.delete(*positions_treeview.get_children())
@@ -1133,7 +1152,7 @@ def positions_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Faculty Number", "Position", "From Date", "To Date"])
+                writer.writerow(["Position Number", "Faculty Number", "Position", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1152,6 +1171,8 @@ def positions_write_to_csv():
 
 def positions_sort_by(search_column, opt_ord):
     match search_column:
+        case "Position Number":
+            search_column="position_no"
         case "Faculty Number":
             search_column = "fac_no"
         case "Position":
@@ -1191,14 +1212,16 @@ def select_item_coord(event):
     selected_item = coord_treeview.selection()
     if selected_item:
         values = coord_treeview.item(selected_item[0], 'values')
+        coord_no_entry.delete(0, tk.END)
+        coord_no_entry.insert(9, values[0])
         coord_school_no_entry.delete(0, tk.END)
-        coord_school_no_entry.insert(0, values[0])
+        coord_school_no_entry.insert(0, values[1])
         coord_fac_no_entry.delete(0, tk.END)
-        coord_fac_no_entry.insert(0, values[1])
+        coord_fac_no_entry.insert(0, values[2])
         coord_from_date_entry.delete(0, tk.END)
-        coord_from_date_entry.insert(0, values[2])
+        coord_from_date_entry.insert(0, values[3])
         coord_to_date_entry.delete(0, tk.END)
-        coord_to_date_entry.insert(0, values[3])
+        coord_to_date_entry.insert(0, values[4])
 
 
 def insert_data_coord(coord_school_no, coord_fac_no, coord_from_date, coord_to_date):
@@ -1219,27 +1242,27 @@ def insert_data_coord(coord_school_no, coord_fac_no, coord_from_date, coord_to_d
     conn.close()
 
 
-def update_data_coord(coord_school_no, coord_fac_no, coord_from_date, coord_to_date):
+def update_data_coord(coord_no, coord_school_no, coord_fac_no, coord_from_date, coord_to_date):
     global username, password, db
     print("update_data called db_conn")
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE COORD SET school_no=%s, fac_no=%s, from_date=%s, to_date=%s WHERE school_no=%s AND fac_no=%s AND from_date=%s AND to_date=%s",
-                       (coord_school_no, coord_fac_no, coord_from_date, coord_to_date, coord_school_no, coord_fac_no, coord_from_date, coord_to_date))
+        cursor.execute("UPDATE COORD SET school_no=%s, fac_no=%s, from_date=%s, to_date=%s WHERE coord_no=%s",
+                       (coord_school_no, coord_fac_no, coord_from_date, coord_to_date, coord_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     finally:
         conn.close()
 
 
-def delete_data_coord(coord_school_no, coord_fac_no, coord_from_date, coord_to_date):
+def delete_data_coord(coord_no):
     global username, password, db
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM COORD WHERE school_no=%s AND fac_no=%s AND from_date=%s AND to_date=%s",
-                       (coord_school_no, coord_fac_no, coord_from_date, coord_to_date))
+        cursor.execute("DELETE FROM COORD WHERE coord_no=%s",
+                       (coord_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     finally:
@@ -1257,7 +1280,7 @@ def delete_record_coord():
 
 
 def clear_entries_coord():
-    for entry in [coord_school_no_entry, coord_fac_no_entry, coord_from_date_entry, coord_to_date_entry]:
+    for entry in [coord_no_entry, coord_school_no_entry, coord_fac_no_entry, coord_from_date_entry, coord_to_date_entry]:
         entry.delete(0, tk.END)
 
 
@@ -1280,7 +1303,11 @@ def add_record_coord():
     coord_from_date_value = coord_from_date_entry.get()
     coord_to_date_value = coord_to_date_entry.get()
 
-    if coord_school_no_value and coord_fac_no_value and coord_from_date_value and coord_to_date_value:
+    if coord_school_no_value and coord_fac_no_value and coord_from_date_value:
+        if coord_to_date_value:
+            if coord_from_date_value > coord_to_date:
+                messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+                return
         try:
             insert_data_coord(coord_school_no_value, coord_fac_no_value, coord_from_date_value, coord_to_date_value)
             print("coord inserted data")
@@ -1297,8 +1324,8 @@ def add_record_coord():
 def update_record_coord():
     selected_item = coord_treeview.selection()
     if selected_item:
-        update_data_coord(coord_treeview.item(selected_item)['values'][0],
-                    coord_fac_no_entry.get(), payroll_from_date_entry.get(), coord_to_date_entry.get())
+        update_data_coord(coord_treeview.item(selected_item)['values'][0], coord_school_no_entry.get(), 
+                    coord_fac_no_entry.get(), coord_from_date_entry.get(), coord_to_date_entry.get())
         clear_entries_coord()
         populate_table_coord()
     else:
@@ -1310,7 +1337,7 @@ def search_coord_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM COORD WHERE school_no LIKE %s OR fac_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
+    query = "SELECT * FROM COORD WHERE coord_no LIKE %s OR school_no LIKE %s OR fac_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     coord_treeview.delete(*coord_treeview.get_children())
@@ -1333,7 +1360,7 @@ def coord_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["School Number", "Faculty Number", "From Date", "To Date"])
+                writer.writerow(["Coordinator Number", "School Number", "Faculty Number", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1352,6 +1379,8 @@ def coord_write_to_csv():
 
 def coord_sort_by(search_column, opt_ord):
     match search_column:
+        case "Coordinator Number":
+            search_column = "coord_no"
         case "Faculty Number":
             search_column = "fac_no"
         case "School Number":
@@ -1389,14 +1418,16 @@ def select_item_dept_fac(event):
     selected_item = dept_fac_treeview.selection()
     if selected_item:
         values = dept_fac_treeview.item(selected_item[0], 'values')
+        dept_fac_no_entry.delete(0, tk.END)
+        dept_fac_no_entry.insert(0, values[0])
         dept_fac_fac_no_entry.delete(0, tk.END)
-        dept_fac_fac_no_entry.insert(0, values[0])
+        dept_fac_fac_no_entry.insert(0, values[1])
         dept_fac_school_no_entry.delete(0, tk.END)
-        dept_fac_school_no_entry.insert(0, values[1])
+        dept_fac_school_no_entry.insert(0, values[2])
         dept_fac_from_date_entry.delete(0, tk.END)
-        dept_fac_from_date_entry.insert(0, values[2])
+        dept_fac_from_date_entry.insert(0, values[3])
         dept_fac_to_date_entry.delete(0, tk.END)
-        dept_fac_to_date_entry.insert(0, values[3])
+        dept_fac_to_date_entry.insert(0, values[4])
 
 
 def insert_data_dept_fac(dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date):
@@ -1418,26 +1449,26 @@ def insert_data_dept_fac(dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date
     conn.close()
 
 
-def update_data_dept_fac(dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date):
+def update_data_dept_fac(dept_fac_no, dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date):
     global username, password, db
     print("update_data called db_conn")
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE DEPT_FAC SET fac_no=%s, school_no=%s, from_date=%s, to_date=%s WHERE fac_no=%s AND school_no=%s AND from_date=%s AND to_date=%s",
-                       (dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date, dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date))
+        cursor.execute("UPDATE DEPT_FAC SET fac_no=%s, school_no=%s, from_date=%s, to_date=%s WHERE dept_fac_no=%s",
+                       (dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date, dept_fac_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     finally:
         conn.close()
 
 
-def delete_data_dept_fac(dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date):
+def delete_data_dept_fac(dept_fac_no):
     global username, password, db
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM DEPT_FAC WHERE fac_no=%s AND school_no=%s AND from_date=%s AND to_date=%s", (dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date))
+        cursor.execute("DELETE FROM DEPT_FAC WHERE dept_fac_no=%s", (dept_fac_no, ))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     finally:
@@ -1455,7 +1486,7 @@ def delete_record_dept_fac():
 
 
 def clear_entries_dept_fac():
-    for entry in [dept_fac_fac_no_entry, dept_fac_school_no_entry, dept_fac_from_date_entry, dept_fac_to_date_entry]:
+    for entry in [dept_fac_no_entry, dept_fac_fac_no_entry, dept_fac_school_no_entry, dept_fac_from_date_entry, dept_fac_to_date_entry]:
         entry.delete(0, tk.END)
 
 
@@ -1478,7 +1509,11 @@ def add_record_dept_fac():
     dept_fac_from_date_value = dept_fac_from_date_entry.get()
     dept_fac_to_date_value = dept_fac_to_date_entry.get()
 
-    if dept_fac_fac_no_value and dept_fac_school_no and dept_fac_from_date_value and dept_fac_to_date_value:
+    if dept_fac_fac_no_value and dept_fac_school_no and dept_fac_from_date_value:
+        if dept_fac_to_date_value:
+            if dept_fac_from_date_value > dept_fac_to_date:
+                messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+                return
         try:
             insert_data_dept_fac(dept_fac_fac_no_value, dept_fac_school_no, dept_fac_from_date_value, dept_fac_to_date_value)
             print("dept_fac inserted data")
@@ -1491,11 +1526,10 @@ def add_record_dept_fac():
     else:
         messagebox.showerror("Error", "All fields must be filled out.")
 
-
 def update_record_dept_fac():
     selected_item = dept_fac_treeview.selection()
     if selected_item:
-        update_data_dept_fac(dept_fac_treeview.item(selected_item)['values'][0],
+        update_data_dept_fac(dept_fac_treeview.item(selected_item)['values'][0], dept_fac_fac_no_entry.get(),
                      dept_fac_school_no_entry.get(), dept_fac_from_date_entry.get(), dept_fac_to_date_entry.get())
         clear_entries_dept_fac()
         populate_table_dept_fac()
@@ -1507,7 +1541,7 @@ def search_dept_fac_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM DEPT_FAC WHERE fac_no LIKE %s OR school_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
+    query = "SELECT * FROM DEPT_FAC WHERE dept_fac_no LIKE %s OR fac_no LIKE %s OR school_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     dept_fac_treeview.delete(*dept_fac_treeview.get_children())
@@ -1530,7 +1564,7 @@ def dept_fac_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Faculty Number", "School Number", "From Date", "To Date"])
+                writer.writerow(["Department Faculty Number", "Faculty Number", "School Number", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1549,6 +1583,8 @@ def dept_fac_write_to_csv():
 
 def dept_fac_sort_by(search_column, opt_ord):
     match search_column:
+        case "Department Faculty Number":
+            search_column = "dept_fac_no"
         case "Faculty Number":
             search_column = "fac_no"
         case "School Number":
@@ -1683,7 +1719,7 @@ school_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
 # Payroll Sort
 payroll_sort_entry = tkb.Combobox(payroll_options_frame, width=75)
-payroll_sort_entry['values'] = ('Faculty Number', "Pay Amount", "From Date", "To Date")
+payroll_sort_entry['values'] = ("Payroll Number", 'Faculty Number', "Pay Amount", "From Date", "To Date")
 payroll_sort_entry.set("Sort by: ")
 payroll_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
@@ -1699,7 +1735,7 @@ payroll_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
 # Positions Sort
 positions_sort_entry = tkb.Combobox(positions_options_frame, width=75)
-positions_sort_entry['values'] = ('Faculty Number', "Position", "From Date", "To Date")
+positions_sort_entry['values'] = ("Position Number", 'Faculty Number', "Position", "From Date", "To Date")
 positions_sort_entry.set("Sort by: ")
 positions_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
@@ -1715,7 +1751,7 @@ positions_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
 # Coord Sort
 coord_sort_entry = tkb.Combobox(coord_options_frame, width=75)
-coord_sort_entry['values'] = ("School Number", 'Faculty Number', "From Date", "To Date")
+coord_sort_entry['values'] = ("Coordinator Number", "School Number", 'Faculty Number', "From Date", "To Date")
 coord_sort_entry.set("Sort by: ")
 coord_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
@@ -1731,7 +1767,7 @@ coord_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 # Dept_fac Sort
 dept_fac_sort_entry = tkb.Combobox(dept_fac_options_frame, width=75)
 dept_fac_sort_entry['values'] = (
-    'Faculty Number', "Last Name", "First Name", "Birth Date", "Hire Date")
+    "Department Faculty Number", 'Faculty Number', "Last Name", "First Name", "Birth Date", "Hire Date")
 dept_fac_sort_entry.set("Sort by: ")
 dept_fac_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
@@ -1843,7 +1879,7 @@ add_placeholder_to(birth_date_entry, "Enter Birth Date")
 add_placeholder_to(hire_date_entry, "Enter Hire Date")
 
 # Labels and entries for Payroll
-payroll_labels = ["Faculty Number", "Pay Amount", "From Date", "To Date"]
+payroll_labels = ["Payroll Number", "Faculty Number", "Pay Amount", "From Date", "To Date"]
 payroll_entries = []
 for i, label_text in enumerate(payroll_labels):
     label = tkb.Label(payroll_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
@@ -1852,14 +1888,16 @@ for i, label_text in enumerate(payroll_labels):
     entry.grid(row=2*i+1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
     payroll_entries.append(entry)
 
-payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry, payroll_to_date_entry = payroll_entries
+payroll_no_entry, payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry, payroll_to_date_entry = payroll_entries
 add_placeholder_to(payroll_fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(payroll_pay_amount_entry, "Enter Pay Amount")
 add_placeholder_to(payroll_from_date_entry, "Enter From Date")
 add_placeholder_to(payroll_to_date_entry, "Enter To Date")
 
+
+
 # labels and entries for Positions
-positions_labels = ["Faculty Number", "Position", "From Date", "To Date"]
+positions_labels = ["Position Number", "Faculty Number", "Position", "From Date", "To Date"]
 positions_entries = []
 for i, label_text in enumerate(positions_labels):
     label = tkb.Label(positions_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
@@ -1868,14 +1906,14 @@ for i, label_text in enumerate(positions_labels):
     entry.grid(row=2*i+1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
     positions_entries.append(entry)
 
-positions_fac_no_entry, positions_position_entry, positions_from_date_entry, positions_to_date_entry = positions_entries
+positions_no_entry, positions_fac_no_entry, positions_position_entry, positions_from_date_entry, positions_to_date_entry = positions_entries
 add_placeholder_to(positions_fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(positions_position_entry, "Enter Position")
 add_placeholder_to(positions_from_date_entry, "Enter From Date")
 add_placeholder_to(positions_to_date_entry, "Enter To Date")
 
 # labels and entries for Coordinators
-coord_labels = ["School Number", "Faculty Number", "From Date", "To Date"]
+coord_labels = ["Coordinator Number", "School Number", "Faculty Number", "From Date", "To Date"]
 coord_entries = []
 for i, label_text in enumerate(coord_labels):
     label = tkb.Label(coord_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
@@ -1884,14 +1922,14 @@ for i, label_text in enumerate(coord_labels):
     entry.grid(row=2*i+1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
     coord_entries.append(entry)
 
-coord_school_no_entry, coord_fac_no_entry, coord_from_date_entry, coord_to_date_entry = coord_entries
+coord_no_entry, coord_school_no_entry, coord_fac_no_entry, coord_from_date_entry, coord_to_date_entry = coord_entries
 add_placeholder_to(coord_school_no_entry, "Enter School Number")
 add_placeholder_to(coord_fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(coord_from_date_entry, "Enter From Date")
 add_placeholder_to(coord_to_date_entry, "Enter To Date")
 
 # Labels and entries for Faculty 
-dept_fac_labels = ["Faculty Number", "School Number", "From Date", "To Date"]
+dept_fac_labels = ["Department Faculty Number", "Faculty Number", "School Number", "From Date", "To Date"]
 dept_fac_entries = []
 for i, label_text in enumerate(dept_fac_labels):
     label = tkb.Label(dept_fac_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
@@ -1900,12 +1938,18 @@ for i, label_text in enumerate(dept_fac_labels):
     entry.grid(row=2*i+1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
     dept_fac_entries.append(entry)
 
-dept_fac_fac_no_entry, dept_fac_school_no_entry, dept_fac_from_date_entry, dept_fac_to_date_entry = dept_fac_entries
+dept_fac_no_entry, dept_fac_fac_no_entry, dept_fac_school_no_entry, dept_fac_from_date_entry, dept_fac_to_date_entry = dept_fac_entries
 add_placeholder_to(dept_fac_fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(dept_fac_school_no_entry, "Enter School Number")
 add_placeholder_to(dept_fac_from_date_entry, "Enter From Date")
 add_placeholder_to(dept_fac_to_date_entry, "Enter To Date")
 
+fac_no_entry.configure(bootstyle="warning")
+school_no_entry.configure(bootstyle="warning")
+payroll_no_entry.configure(bootstyle="warning")
+positions_no_entry.configure(bootstyle="warning")
+coord_no_entry.configure(bootstyle="warning")
+dept_fac_no_entry.configure(bootstyle="warning")
 
 # Load icons for add, update, and delete buttons
 add_image = Image.open("add_icon.png")
@@ -1950,7 +1994,7 @@ dept_fac_button_icons = [add_icon, update_icon, delete_icon, write_csv_icon, sav
 dept_fac_button_texts = ["Add", "Update", "Delete", "Write CSV", "Save DB"]
 
 commands = [add_record, update_record, delete_record, faculty_write_to_csv, backup_db]
-school_commands = [add_record_school, update_record_school, delete_data_school, school_write_to_csv, backup_db]
+school_commands = [add_record_school, update_record_school, delete_record_school, school_write_to_csv, backup_db]
 payroll_commands = [add_record_payroll, update_record_payroll, delete_record_payroll, payroll_write_to_csv, backup_db]
 positions_commands = [add_record_positions, update_record_positions, delete_record_positions, positions_write_to_csv, backup_db]
 coord_commands = [add_record_coord, update_record_coord, delete_record_coord, coord_write_to_csv, backup_db]
@@ -2015,28 +2059,28 @@ school_treeview.column("School Number", width=40)
 school_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Treeview for displaying data for Payroll
-payroll_treeview = tkb.Treeview(payroll_table_frame, columns=("Faculty Number", "Pay Amount", "From Date", "To Date"), show="headings", bootstyle="info")
+payroll_treeview = tkb.Treeview(payroll_table_frame, columns=("Payroll Number", "Faculty Number", "Pay Amount", "From Date", "To Date"), show="headings", bootstyle="info")
 for col in payroll_treeview["columns"]:
     payroll_treeview.heading(col, text=col)
     payroll_treeview.column(col, anchor=tk.W)
 payroll_treeview.column("Faculty Number", width=40)
 payroll_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-positions_treeview = tkb.Treeview(positions_table_frame, columns=("Faculty Number", "Position", "From Date", "To Date"), show="headings", bootstyle="info")
+positions_treeview = tkb.Treeview(positions_table_frame, columns=("Position Number", "Faculty Number", "Position", "From Date", "To Date"), show="headings", bootstyle="info")
 for col in positions_treeview["columns"]:
     positions_treeview.heading(col, text=col)
     positions_treeview.column(col, anchor=tk.W)
 positions_treeview.column("Faculty Number", width=40)
 positions_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-coord_treeview = tkb.Treeview(coord_table_frame, columns=("School Number", "Faculty Number", "From Date", "To Date"), show="headings", bootstyle="info")
+coord_treeview = tkb.Treeview(coord_table_frame, columns=("Coordinator Number", "School Number", "Faculty Number", "From Date", "To Date"), show="headings", bootstyle="info")
 for col in coord_treeview["columns"]:
     coord_treeview.heading(col, text=col)
     coord_treeview.column(col, anchor=tk.W)
 coord_treeview.column("School Number", width=40)
 coord_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-dept_fac_treeview = tkb.Treeview(dept_fac_table_frame, columns=("Faculty Number", "School Number", "From Date", "To Date"), show="headings", bootstyle="info")
+dept_fac_treeview = tkb.Treeview(dept_fac_table_frame, columns=("Department Faculty Number", "Faculty Number", "School Number", "From Date", "To Date"), show="headings", bootstyle="info")
 for col in dept_fac_treeview["columns"]:
     dept_fac_treeview.heading(col, text=col)
     dept_fac_treeview.column(col, anchor=tk.W)
