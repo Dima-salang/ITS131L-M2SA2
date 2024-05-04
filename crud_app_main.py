@@ -783,11 +783,11 @@ def select_item_payroll(event):
         payroll_fac_no_entry.delete(0, tk.END)
         payroll_fac_no_entry.insert(0, values[1])
         payroll_pay_amount_entry.delete(0, tk.END)
-        payroll_pay_amount_entry.insert(0, values[2])
+        payroll_pay_amount_entry.insert(0, values[3])
         payroll_from_date_entry.delete(0, tk.END)
-        payroll_from_date_entry.insert(0, values[3])
+        payroll_from_date_entry.insert(0, values[4])
         payroll_to_date_entry.delete(0, tk.END)
-        payroll_to_date_entry.insert(0, values[4])
+        payroll_to_date_entry.insert(0, values[5])
 
 
 def insert_data_payroll(payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date):
@@ -901,7 +901,16 @@ def populate_table_payroll():
     print("populate table called db_conn")
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM PAYROLL")
+    cursor.execute("""
+                        SELECT
+                        payroll_no,
+                        PAYROLL.fac_no,
+                        CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname),
+                        fac_pay,
+                        from_date, 
+                        to_date 
+                        FROM PAYROLL 
+                        INNER JOIN FACULTY ON PAYROLL.fac_no = FACULTY.fac_no""")
     rows = cursor.fetchall()
     payroll_treeview.delete(*payroll_treeview.get_children())
     for row in rows:
@@ -937,12 +946,21 @@ def payroll_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Payroll Number", "Faculty Number", "Pay Amount", "From Date", "To Date"])
+                writer.writerow(["Payroll Number", "Faculty Number", "Full Name", "Pay Amount", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM PAYROLL")
+                cursor.execute("""
+                        SELECT
+                        payroll_no,
+                        PAYROLL.fac_no,
+                        CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname),
+                        fac_pay,
+                        from_date, 
+                        to_date 
+                        FROM PAYROLL 
+                        INNER JOIN FACULTY ON PAYROLL.fac_no = FACULTY.fac_no""")
 
                 rows = cursor.fetchall()
                 for row in rows:
@@ -1004,11 +1022,11 @@ def select_item_positions(event):
         positions_fac_no_entry.delete(0, tk.END)
         positions_fac_no_entry.insert(0, values[1])
         positions_position_entry.delete(0, tk.END)
-        positions_position_entry.insert(0, values[2])
+        positions_position_entry.insert(0, values[3])
         positions_from_date_entry.delete(0, tk.END)
-        positions_from_date_entry.insert(0, values[3])
+        positions_from_date_entry.insert(0, values[4])
         positions_to_date_entry.delete(0, tk.END)
-        positions_to_date_entry.insert(0, values[4])
+        positions_to_date_entry.insert(0, values[5])
 
 
 def insert_data_positions(positions_fac_no, positions_position, positions_from_date, positions_to_date):
@@ -1066,7 +1084,16 @@ def populate_table_positions():
     print("populate table called db_conn")
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    cursor.execute("SELECT POSITIONS.*, FACULTY.fac_fname, FACULTY.fac_lname FROM POSITIONS INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no")
+    cursor.execute("""
+                    SELECT
+                    positions_no, 
+                    POSITIONS.fac_no, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name, 
+                    POSITIONS.pos, 
+                    POSITIONS.from_date, 
+                    POSITIONS.to_date 
+                    FROM POSITIONS 
+                    INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no""")
     rows = cursor.fetchall()
     positions_treeview.delete(*positions_treeview.get_children())
     for row in rows:
@@ -1161,12 +1188,21 @@ def positions_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Position Number", "Faculty Number", "Position", "From Date", "To Date"])
+                writer.writerow(["Position Number", "Faculty Number", "Full Name", "Position", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM POSITIONS")
+                cursor.execute("""
+                    SELECT
+                    positions_no, 
+                    POSITIONS.fac_no, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name, 
+                    POSITIONS.pos, 
+                    POSITIONS.from_date, 
+                    POSITIONS.to_date 
+                    FROM POSITIONS 
+                    INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no""")
 
                 rows = cursor.fetchall()
                 for row in rows:
@@ -1231,9 +1267,9 @@ def select_item_coord(event):
         coord_fac_no_entry.delete(0, tk.END)
         coord_fac_no_entry.insert(0, values[2])
         coord_from_date_entry.delete(0, tk.END)
-        coord_from_date_entry.insert(0, values[3])
+        coord_from_date_entry.insert(0, values[5])
         coord_to_date_entry.delete(0, tk.END)
-        coord_to_date_entry.insert(0, values[4])
+        coord_to_date_entry.insert(0, values[6])
 
 
 def insert_data_coord(coord_school_no, coord_fac_no, coord_from_date, coord_to_date):
@@ -1302,7 +1338,16 @@ def populate_table_coord():
     print("populate table called db_conn")
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM COORD")
+    cursor.execute("""SELECT 
+                    COORD.coord_no, 
+                    COORD.school_no, 
+                    COORD.fac_no, 
+                    SCHOOL.school_name, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname), 
+                    COORD.from_date, COORD.to_date 
+                    FROM COORD
+                    INNER JOIN FACULTY ON COORD.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON COORD.school_no = SCHOOL.school_no""")
     rows = cursor.fetchall()
     coord_treeview.delete(*coord_treeview.get_children())
     for row in rows:
@@ -1384,12 +1429,21 @@ def coord_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Coordinator Number", "School Number", "Faculty Number", "From Date", "To Date"])
+                writer.writerow(["Coordinator Number", "School Number", "Faculty Number", "School", "Full Name", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM COORD")
+                cursor.execute("""SELECT 
+                    COORD.coord_no, 
+                    COORD.school_no, 
+                    COORD.fac_no, 
+                    SCHOOL.school_name, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname), 
+                    COORD.from_date, COORD.to_date 
+                    FROM COORD
+                    INNER JOIN FACULTY ON COORD.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON COORD.school_no = SCHOOL.school_no""")
 
                 rows = cursor.fetchall()
                 for row in rows:
@@ -1453,9 +1507,9 @@ def select_item_dept_fac(event):
         dept_fac_school_no_entry.delete(0, tk.END)
         dept_fac_school_no_entry.insert(0, values[2])
         dept_fac_from_date_entry.delete(0, tk.END)
-        dept_fac_from_date_entry.insert(0, values[3])
+        dept_fac_from_date_entry.insert(0, values[5])
         dept_fac_to_date_entry.delete(0, tk.END)
-        dept_fac_to_date_entry.insert(0, values[4])
+        dept_fac_to_date_entry.insert(0, values[6])
 
 
 def insert_data_dept_fac(dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date):
@@ -1524,7 +1578,18 @@ def populate_table_dept_fac():
     print("populate table called db_conn")
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM DEPT_FAC")
+    cursor.execute("""
+                    SELECT
+                    DEPT_FAC.dept_fac_no,
+                    DEPT_FAC.fac_no,
+                    DEPT_FAC.school_no,
+                    SCHOOL.school_name,
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name,
+                    DEPT_FAC.from_date,
+                    DEPT_FAC.to_date
+                    FROM DEPT_FAC
+                    INNER JOIN FACULTY ON DEPT_FAC.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON DEPT_FAC.school_no = SCHOOL.school_no""")
     rows = cursor.fetchall()
     dept_fac_treeview.delete(*dept_fac_treeview.get_children())
     for row in rows:
@@ -1609,12 +1674,23 @@ def dept_fac_write_to_csv():
                 writer = csv.writer(csv_file)
 
                 writer.writerow(
-                    ["Department Faculty Number", "Faculty Number", "School Number", "From Date", "To Date"])
+                    ["Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
                 cursor = conn.cursor()
-                cursor.execute("SELECT * FROM DEPT_FAC")
+                cursor.execute("""
+                    SELECT
+                    DEPT_FAC.dept_fac_no,
+                    DEPT_FAC.fac_no,
+                    DEPT_FAC.school_no,
+                    SCHOOL.school_name,
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name,
+                    DEPT_FAC.from_date,
+                    DEPT_FAC.to_date
+                    FROM DEPT_FAC
+                    INNER JOIN FACULTY ON DEPT_FAC.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON DEPT_FAC.school_no = SCHOOL.school_no""")
 
                 rows = cursor.fetchall()
                 for row in rows:
@@ -2106,39 +2182,48 @@ school_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Treeview for displaying data for Payroll
 payroll_treeview = tkb.Treeview(payroll_table_frame,
-                                columns=("Payroll Number", "Faculty Number", "Pay Amount", "From Date", "To Date"),
+                                columns=("Payroll Number", "Faculty Number", "Full Name", "Pay Amount", "From Date", "To Date"),
                                 show="headings", bootstyle="info")
 for col in payroll_treeview["columns"]:
     payroll_treeview.heading(col, text=col)
-    payroll_treeview.column(col, anchor=tk.W)
+    payroll_treeview.column(col, anchor=tk.W, stretch=NO)
+payroll_treeview.column("Payroll Number", width=40)
 payroll_treeview.column("Faculty Number", width=40)
-payroll_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+payroll_treeview.grid(row=2, column=0)
 
 positions_treeview = tkb.Treeview(positions_table_frame,
-                                  columns=("Position Number", "Faculty Number", "Position", "From Date", "To Date"),
+                                  columns=("Position Number", "Faculty Number", "Full Name", "Position", "From Date", "To Date"),
                                   show="headings", bootstyle="info")
 for col in positions_treeview["columns"]:
     positions_treeview.heading(col, text=col)
     positions_treeview.column(col, anchor=tk.W)
+positions_treeview.column("Position Number", width=40)
 positions_treeview.column("Faculty Number", width=40)
 positions_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 coord_treeview = tkb.Treeview(coord_table_frame,
-                              columns=("Coordinator Number", "School Number", "Faculty Number", "From Date", "To Date"),
+                              columns=("Coordinator Number", "School Number", "Faculty Number", "School", "Full Name", "From Date", "To Date"),
                               show="headings", bootstyle="info")
 for col in coord_treeview["columns"]:
     coord_treeview.heading(col, text=col)
-    coord_treeview.column(col, anchor=tk.W)
+    coord_treeview.column(col, anchor=tk.W, width=150)
 coord_treeview.column("School Number", width=40)
+coord_treeview.column("Coordinator Number", width=40)
+coord_treeview.column("Faculty Number", width=40)
+
+
 coord_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 dept_fac_treeview = tkb.Treeview(dept_fac_table_frame, columns=(
-"Department Faculty Number", "Faculty Number", "School Number", "From Date", "To Date"), show="headings",
+"Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date", "To Date"), show="headings",
                                  bootstyle="info")
 for col in dept_fac_treeview["columns"]:
     dept_fac_treeview.heading(col, text=col)
-    dept_fac_treeview.column(col, anchor=tk.W)
+    dept_fac_treeview.column(col, anchor=tk.W, width=150)
 dept_fac_treeview.column("Faculty Number", width=40)
+dept_fac_treeview.column("Department Faculty Number", width=40)
+dept_fac_treeview.column("School Number", width=40)
+
 dept_fac_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Bind select event
