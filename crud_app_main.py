@@ -483,7 +483,7 @@ def search_records(keyword):
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
     query = "SELECT * FROM FACULTY WHERE fac_no LIKE %s OR fac_lname LIKE %s OR fac_fname LIKE %s OR birth_date LIKE %s OR hire_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     treeview.delete(*treeview.get_children())
     for row in rows:
@@ -707,7 +707,7 @@ def search_school_records(keyword):
 
 
 def search_school_button_click():
-    keyword = search_entry.get()
+    keyword = search_entry_school.get()
     search_school_records(keyword)
 
 
@@ -774,10 +774,12 @@ def school_sort_by(search_column, opt_ord):
 
 def select_item_payroll(event):
     selected_item = payroll_treeview.selection()
+    payroll_no_entry.configure(state=NORMAL)
     if selected_item:
         values = payroll_treeview.item(selected_item[0], 'values')
         payroll_no_entry.delete(0, tk.END)
         payroll_no_entry.insert(0, values[0])
+        payroll_no_entry.configure(state='readonly')
         payroll_fac_no_entry.delete(0, tk.END)
         payroll_fac_no_entry.insert(0, values[1])
         payroll_pay_amount_entry.delete(0, tk.END)
@@ -868,12 +870,22 @@ def add_record_payroll():
 
 def update_record_payroll():
     selected_item = payroll_treeview.selection()
+    payroll_from_date_value = payroll_from_date_entry.get()
+    payroll_to_date_value = payroll_to_date_entry.get()
     if selected_item:
-        update_data_payroll(payroll_treeview.item(selected_item)['values'][0], payroll_fac_no_entry.get(),
-                            payroll_pay_amount_entry.get(), payroll_from_date_entry.get(), payroll_to_date_entry.get())
-        print(payroll_treeview.item(selected_item)['values'][0])
-        clear_entries_payroll()
-        populate_table_payroll()
+        if payroll_from_date_value > payroll_to_date_value:
+            messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+            return
+        else:
+            try:
+                update_data_payroll(payroll_treeview.item(selected_item)['values'][0], payroll_fac_no_entry.get(),
+                                    payroll_pay_amount_entry.get(), payroll_from_date_value, payroll_to_date_value)
+                print(payroll_treeview.item(selected_item)['values'][0])
+                clear_entries_payroll()
+                populate_table_payroll()
+            except mysql.connector.Error as err:
+                messagebox.showerror(title="Error", message=f"{err}")
+
     else:
         messagebox.showerror("Error", "Please select a record to update.")
 
@@ -902,7 +914,7 @@ def search_payroll_records(keyword):
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
     query = "SELECT * FROM PAYROLL WHERE payroll_no LIKE %s OR fac_no LIKE %s OR fac_pay LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     payroll_treeview.delete(*payroll_treeview.get_children())
     for row in rows:
@@ -911,7 +923,7 @@ def search_payroll_records(keyword):
 
 
 def search_payroll_button_click():
-    keyword = search_entry.get()
+    keyword = search_entry_payroll.get()
     search_payroll_records(keyword)
 
 
@@ -983,10 +995,12 @@ def payroll_sort_by(search_column, opt_ord):
 
 def select_item_positions(event):
     selected_item = positions_treeview.selection()
+    positions_no_entry.configure(state=NORMAL)
     if selected_item:
         values = positions_treeview.item(selected_item[0], 'values')
         positions_no_entry.delete(0, tk.END)
         positions_no_entry.insert(0, values[0])
+        positions_no_entry.configure(state='readonly')
         positions_fac_no_entry.delete(0, tk.END)
         positions_fac_no_entry.insert(0, values[1])
         positions_position_entry.delete(0, tk.END)
@@ -1052,7 +1066,7 @@ def populate_table_positions():
     print("populate table called db_conn")
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM POSITIONS")
+    cursor.execute("SELECT POSITIONS.*, FACULTY.fac_fname, FACULTY.fac_lname FROM POSITIONS INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no")
     rows = cursor.fetchall()
     positions_treeview.delete(*positions_treeview.get_children())
     for row in rows:
@@ -1099,22 +1113,32 @@ def add_record_positions():
 
 def update_record_positions():
     selected_item = positions_treeview.selection()
+    positions_from_date_value = positions_from_date_entry.get()
+    positions_to_date_value = positions_to_date_entry.get()
     if selected_item:
-        update_data_positions(positions_treeview.item(selected_item)['values'][0], positions_fac_no_entry.get(),
-                              positions_position_entry.get(), positions_from_date_entry.get(),
-                              positions_to_date_entry.get())
-        clear_entries_positions()
-        populate_table_positions()
+        if positions_from_date_value > positions_to_date_value:
+            messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+            return
+        else:
+            try:
+                update_data_positions(positions_treeview.item(selected_item)['values'][0], positions_fac_no_entry.get(),
+                                      positions_position_entry.get(), positions_from_date_value,
+                                      positions_to_date_value)
+                clear_entries_positions()
+                populate_table_positions()
+            except mysql.connector.Error as err:
+                messagebox.showerror(title="Error", message=f"{err}")
     else:
         messagebox.showerror("Error", "Please select a record to update.")
 
 
 def search_positions_records(keyword):
+    print("Searched for ", keyword)
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM PAYROLL WHERE positions_no LIKE %s OR fac_no LIKE %s OR pos LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    query = "SELECT * FROM POSITIONS WHERE positions_no LIKE %s OR fac_no LIKE %s OR pos LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     positions_treeview.delete(*positions_treeview.get_children())
     for row in rows:
@@ -1123,7 +1147,7 @@ def search_positions_records(keyword):
 
 
 def search_positions_button_click():
-    keyword = search_entry.get()
+    keyword = search_entry_positions.get()
     search_positions_records(keyword)
 
 
@@ -1157,7 +1181,7 @@ def positions_write_to_csv():
 def positions_sort_by(search_column, opt_ord):
     match search_column:
         case "Position Number":
-            search_column = "position_no"
+            search_column = "positions_no"
         case "Faculty Number":
             search_column = "fac_no"
         case "Position":
@@ -1196,10 +1220,12 @@ def positions_sort_by(search_column, opt_ord):
 
 def select_item_coord(event):
     selected_item = coord_treeview.selection()
+    coord_no_entry.configure(state=NORMAL)
     if selected_item:
         values = coord_treeview.item(selected_item[0], 'values')
         coord_no_entry.delete(0, tk.END)
-        coord_no_entry.insert(9, values[0])
+        coord_no_entry.insert(0, values[0])
+        coord_no_entry.configure(state='readonly')
         coord_school_no_entry.delete(0, tk.END)
         coord_school_no_entry.insert(0, values[1])
         coord_fac_no_entry.delete(0, tk.END)
@@ -1312,11 +1338,20 @@ def add_record_coord():
 
 def update_record_coord():
     selected_item = coord_treeview.selection()
+    coord_from_date_value = coord_from_date_entry.get()
+    coord_to_date_value = coord_to_date_entry.get()
     if selected_item:
-        update_data_coord(coord_treeview.item(selected_item)['values'][0], coord_school_no_entry.get(),
-                          coord_fac_no_entry.get(), coord_from_date_entry.get(), coord_to_date_entry.get())
-        clear_entries_coord()
-        populate_table_coord()
+        if coord_from_date_value > coord_to_date_value:
+            messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+            return
+        else:
+            try:
+                update_data_coord(coord_treeview.item(selected_item)['values'][0], coord_school_no_entry.get(),
+                                  coord_fac_no_entry.get(), coord_from_date_value, coord_to_date_value)
+                clear_entries_coord()
+                populate_table_coord()
+            except mysql.connector.Error as err:
+                messagebox.showerror(title="Error", message=f"{err}")
     else:
         messagebox.showerror("Error", "Please select a record to update.")
 
@@ -1326,7 +1361,7 @@ def search_coord_records(keyword):
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
     query = "SELECT * FROM COORD WHERE coord_no LIKE %s OR school_no LIKE %s OR fac_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     coord_treeview.delete(*coord_treeview.get_children())
     for row in rows:
@@ -1335,7 +1370,7 @@ def search_coord_records(keyword):
 
 
 def search_coord_button_click():
-    keyword = search_entry.get()
+    keyword = search_entry_coord.get()
     search_coord_records(keyword)
 
 
@@ -1407,10 +1442,12 @@ def coord_sort_by(search_column, opt_ord):
 
 def select_item_dept_fac(event):
     selected_item = dept_fac_treeview.selection()
+    dept_fac_no_entry.configure(state=NORMAL)
     if selected_item:
         values = dept_fac_treeview.item(selected_item[0], 'values')
         dept_fac_no_entry.delete(0, tk.END)
         dept_fac_no_entry.insert(0, values[0])
+        dept_fac_no_entry.configure(state='readonly')
         dept_fac_fac_no_entry.delete(0, tk.END)
         dept_fac_fac_no_entry.insert(0, values[1])
         dept_fac_school_no_entry.delete(0, tk.END)
@@ -1524,12 +1561,21 @@ def add_record_dept_fac():
 
 def update_record_dept_fac():
     selected_item = dept_fac_treeview.selection()
+    dept_fac_from_date_value = dept_fac_from_date_entry.get()
+    dept_fac_to_date_value = dept_fac_to_date_entry.get()
     if selected_item:
-        update_data_dept_fac(dept_fac_treeview.item(selected_item)['values'][0], dept_fac_fac_no_entry.get(),
-                             dept_fac_school_no_entry.get(), dept_fac_from_date_entry.get(),
-                             dept_fac_to_date_entry.get())
-        clear_entries_dept_fac()
-        populate_table_dept_fac()
+        if dept_fac_from_date_value > dept_fac_to_date_value:
+            messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+            return
+        else:
+            try:
+                update_data_dept_fac(dept_fac_treeview.item(selected_item)['values'][0], dept_fac_fac_no_entry.get(),
+                                     dept_fac_school_no_entry.get(), dept_fac_from_date_value,
+                                     dept_fac_to_date_value)
+                clear_entries_dept_fac()
+                populate_table_dept_fac()
+            except mysql.connector.Error as err:
+                messagebox.showerror(title="Error", message=f"{err}")
     else:
         messagebox.showerror("Error", "Please select a record to update.")
 
@@ -1539,7 +1585,7 @@ def search_dept_fac_records(keyword):
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
     query = "SELECT * FROM DEPT_FAC WHERE dept_fac_no LIKE %s OR fac_no LIKE %s OR school_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     dept_fac_treeview.delete(*dept_fac_treeview.get_children())
     for row in rows:
@@ -1548,7 +1594,7 @@ def search_dept_fac_records(keyword):
 
 
 def search_dept_fac_button_click():
-    keyword = search_entry.get()
+    keyword = search_entry_dept_fac.get()
     search_dept_fac_records(keyword)
 
 
@@ -1860,6 +1906,7 @@ school_no_entry, school_name_entry = school_entries
 add_placeholder_to(school_no_entry, "Enter School Number")
 add_placeholder_to(school_name_entry, "Enter School Name")
 
+
 # Labels and entries for Faculty
 labels = ["Faculty Number", "Last Name", "First Name", "Birth Date", "Hire Date"]
 entries = []
@@ -1874,8 +1921,8 @@ fac_no_entry, fac_lname_entry, fac_fname_entry, birth_date_entry, hire_date_entr
 add_placeholder_to(fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(fac_lname_entry, "Enter Last Name")
 add_placeholder_to(fac_fname_entry, "Enter First Name")
-add_placeholder_to(birth_date_entry, "Enter Birth Date")
-add_placeholder_to(hire_date_entry, "Enter Hire Date")
+add_placeholder_to(birth_date_entry, "YYYY-MM-DD")
+add_placeholder_to(hire_date_entry, "YYYY-MM-DD")
 
 # Labels and entries for Payroll
 payroll_labels = ["Payroll Number", "Faculty Number", "Pay Amount", "From Date", "To Date"]
@@ -1890,8 +1937,8 @@ for i, label_text in enumerate(payroll_labels):
 payroll_no_entry, payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry, payroll_to_date_entry = payroll_entries
 add_placeholder_to(payroll_fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(payroll_pay_amount_entry, "Enter Pay Amount")
-add_placeholder_to(payroll_from_date_entry, "Enter From Date")
-add_placeholder_to(payroll_to_date_entry, "Enter To Date")
+add_placeholder_to(payroll_from_date_entry, "YYYY-MM-DD")
+add_placeholder_to(payroll_to_date_entry, "YYYY-MM-DD")
 
 # labels and entries for Positions
 positions_labels = ["Position Number", "Faculty Number", "Position", "From Date", "To Date"]
@@ -1906,8 +1953,8 @@ for i, label_text in enumerate(positions_labels):
 positions_no_entry, positions_fac_no_entry, positions_position_entry, positions_from_date_entry, positions_to_date_entry = positions_entries
 add_placeholder_to(positions_fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(positions_position_entry, "Enter Position")
-add_placeholder_to(positions_from_date_entry, "Enter From Date")
-add_placeholder_to(positions_to_date_entry, "Enter To Date")
+add_placeholder_to(positions_from_date_entry, "YYYY-MM-DD")
+add_placeholder_to(positions_to_date_entry, "YYYY-MM-DD")
 
 # labels and entries for Coordinators
 coord_labels = ["Coordinator Number", "School Number", "Faculty Number", "From Date", "To Date"]
@@ -1922,8 +1969,8 @@ for i, label_text in enumerate(coord_labels):
 coord_no_entry, coord_school_no_entry, coord_fac_no_entry, coord_from_date_entry, coord_to_date_entry = coord_entries
 add_placeholder_to(coord_school_no_entry, "Enter School Number")
 add_placeholder_to(coord_fac_no_entry, "Enter Faculty Number")
-add_placeholder_to(coord_from_date_entry, "Enter From Date")
-add_placeholder_to(coord_to_date_entry, "Enter To Date")
+add_placeholder_to(coord_from_date_entry, "YYYY-MM-DD")
+add_placeholder_to(coord_to_date_entry, "YYYY-MM-DD")
 
 # Labels and entries for Faculty
 dept_fac_labels = ["Department Faculty Number", "Faculty Number", "School Number", "From Date", "To Date"]
@@ -1938,15 +1985,15 @@ for i, label_text in enumerate(dept_fac_labels):
 dept_fac_no_entry, dept_fac_fac_no_entry, dept_fac_school_no_entry, dept_fac_from_date_entry, dept_fac_to_date_entry = dept_fac_entries
 add_placeholder_to(dept_fac_fac_no_entry, "Enter Faculty Number")
 add_placeholder_to(dept_fac_school_no_entry, "Enter School Number")
-add_placeholder_to(dept_fac_from_date_entry, "Enter From Date")
-add_placeholder_to(dept_fac_to_date_entry, "Enter To Date")
+add_placeholder_to(dept_fac_from_date_entry, "YYYY-MM-DD")
+add_placeholder_to(dept_fac_to_date_entry, "YYYY-MM-DD")
 
 fac_no_entry.configure(bootstyle="warning")
 school_no_entry.configure(bootstyle="warning")
-payroll_no_entry.configure(bootstyle="warning")
-positions_no_entry.configure(bootstyle="warning")
-coord_no_entry.configure(bootstyle="warning")
-dept_fac_no_entry.configure(bootstyle="warning")
+payroll_no_entry.configure(bootstyle="warning", state='readonly')
+positions_no_entry.configure(bootstyle="warning", state='readonly')
+coord_no_entry.configure(bootstyle="warning", state='readonly')
+dept_fac_no_entry.configure(bootstyle="warning", state='readonly')
 
 # Load icons for add, update, and delete buttons
 add_image = Image.open("add_icon.png")
