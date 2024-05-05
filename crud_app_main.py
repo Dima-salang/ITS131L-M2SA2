@@ -556,6 +556,8 @@ def delete_data(fac_no):
         cursor.execute("DELETE FROM FACULTY WHERE fac_no=%s", (fac_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
+    except mysql.connector.IntegrityError:
+        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -770,6 +772,8 @@ def delete_data_school(school_no):
         cursor.execute("DELETE FROM SCHOOL WHERE school_no=%s", (school_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
+    except mysql.connector.IntegrityError:
+        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -969,6 +973,8 @@ def delete_data_payroll(payroll_no):
         cursor.execute("DELETE FROM PAYROLL WHERE payroll_no=%s", (payroll_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
+    except mysql.connector.IntegrityError:
+        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -979,6 +985,7 @@ def delete_record_payroll():
         delete_data_payroll(payroll_treeview.item(selected_item)['values'][0])
         clear_entries_payroll()
         populate_table_payroll()
+
     else:
         messagebox.showerror("Error", "Please select a record to delete.")
 
@@ -1208,6 +1215,8 @@ def delete_data_positions(positions_no):
         cursor.execute("DELETE FROM POSITIONS WHERE positions_no=%s", (positions_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
+    except mysql.connector.IntegrityError:
+        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -1452,6 +1461,8 @@ def delete_data_coord(coord_no):
                        (coord_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
+    except mysql.connector.IntegrityError:
+        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -1692,6 +1703,8 @@ def delete_data_dept_fac(dept_fac_no):
         cursor.execute("DELETE FROM DEPT_FAC WHERE dept_fac_no=%s", (dept_fac_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
+    except mysql.connector.IntegrityError:
+        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -2317,7 +2330,7 @@ school_treeview = tkb.Treeview(school_table_frame, columns=("School Number", "Sc
 for col in school_treeview["columns"]:
     school_treeview.heading(col, text=col)
     school_treeview.column(col, anchor=tk.W)
-school_treeview.column("School Number", width=40)
+school_treeview.column("School Number", width=50)
 school_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Treeview for displaying data for Payroll
@@ -2347,7 +2360,7 @@ coord_treeview = tkb.Treeview(coord_table_frame,
 for col in coord_treeview["columns"]:
     coord_treeview.heading(col, text=col)
     coord_treeview.column(col, anchor=tk.W, width=150)
-coord_treeview.column("School Number", width=40)
+coord_treeview.column("School Number", width=50)
 coord_treeview.column("Coordinator Number", width=40)
 coord_treeview.column("Faculty Number", width=40)
 
@@ -2362,7 +2375,7 @@ for col in dept_fac_treeview["columns"]:
     dept_fac_treeview.column(col, anchor=tk.W, width=150)
 dept_fac_treeview.column("Faculty Number", width=40)
 dept_fac_treeview.column("Department Faculty Number", width=40)
-dept_fac_treeview.column("School Number", width=40)
+dept_fac_treeview.column("School Number", width=50)
 
 dept_fac_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
