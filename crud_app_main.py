@@ -20,11 +20,12 @@ current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
 root = tkb.Window(themename="superhero")
 root.title("CRUD Application")
-root.geometry("1500x700")  # Adjust the initial size of the window
+#slighly Edited the screen size
+root.geometry("1700x700")
 root.withdraw()
 
-root.maxsize(1500, 700)
-root.minsize(1500, 700)
+root.maxsize(1700, 700)
+root.minsize(1700, 700)
 
 crud_notebook = tkb.Notebook(root, bootstyle="primary")
 crud_notebook.pack(fill='both', expand=1)
@@ -110,6 +111,7 @@ crud_notebook.add(coord_frame, text="Coordinators")
 crud_notebook.add(dept_fac_frame, text="Department Faculties")
 
 
+
 # function to establish a connection to the MySQL server. Returns a connector object.
 def db_conn(username, passwd, db):
     try:
@@ -150,15 +152,146 @@ def build_db(username, passwd):
         messagebox.showerror(title="Error creating database", message=f"Error creating database: {err}")
         return
 
+# function to check whether the user already initialized the app once to prevent inserting redundant dummy data
+def check_init():
+    return os.path.exists("init.flag")
+
+
+def create_dummies():
+
+    try:
+        global username, password, db
+        conn = db_conn(username, password, db)
+        cursor = conn.cursor()
+
+        faculty_dummy = """
+        INSERT INTO FACULTY (fac_lname, fac_fname, birth_date, hire_date) VALUES
+        ('Santos', 'Juan', '1980-05-15', '2005-09-20'),
+        ('Garcia', 'Maria', '1975-08-23', '2008-03-10'),
+        ('Cruz', 'Miguel', '1982-11-10', '2010-06-28'),
+        ('Reyes', 'Jessica', '1978-04-03', '2003-11-15'),
+        ('Torres', 'Christian', '1985-10-20', '2015-02-18'),
+        ('Dela Cruz', 'Ana', '1970-12-08', '2000-07-05'),
+        ('Aquino', 'Mateo', '1987-03-25', '2012-09-30'),
+        ('Lopez', 'Jenelyn', '1973-06-17', '2006-12-12'),
+        ('Mendoza', 'Daniel', '1984-09-12', '2018-05-22'),
+        ('Dizon', 'Amanda', '1976-02-28', '2002-04-14');
+        """
+
+        school_dummy = """
+        INSERT INTO SCHOOL (school_no, school_name) VALUES
+        ('S001', 'SOIT'),
+        ('A002', 'ARIDBE'),
+        ('S003', 'SCEGE'),
+        ('M004', 'SMME'),
+        ('E005', 'SEEC'),
+        ('I006', 'SIEE'),
+        ('C007', 'SCBM');
+        """
+
+        payroll_dummy = """
+        INSERT INTO PAYROLL (fac_no, fac_pay, from_date, to_date) VALUES
+        (1, 50000, '2024-01-01', '2024-01-15'),
+        (2, 55000, '2024-01-10', '2024-01-25'),
+        (3, 60000, '2024-01-05', '2024-01-20'),
+        (4, 52000, '2024-01-15', '2024-01-30'),
+        (5, 58000, '2024-01-20', '2024-02-04'),
+        (6, 53000, '2024-01-25', '2024-02-09'),
+        (7, 57000, '2024-01-01', '2024-01-16'),
+        (8, 62000, '2024-01-07', '2024-01-22'),
+        (9, 54000, '2024-01-12', '2024-01-27'),
+        (10, 56000, '2024-01-17', '2024-02-01');
+        """
+
+        positions_dummy = """
+        INSERT INTO POSITIONS (fac_no, pos, from_date, to_date) VALUES
+        (1, 'Professor', '2024-01-01', '2024-01-15'),
+        (2, 'Associate Professor', '2024-01-10', '2024-01-25'),
+        (3, 'Assistant Professor', '2024-01-05', '2024-01-20'),
+        (4, 'Lecturer', '2024-01-15', '2024-01-30'),
+        (5, 'Senior Lecturer', '2024-01-20', '2024-02-04'),
+        (6, 'Instructor', '2024-01-25', '2024-02-09'),
+        (7, 'Dean', '2024-01-01', '2024-01-16'),
+        (8, 'Associate Dean', '2024-01-07', '2024-01-22'),
+        (9, 'Assistant', '2024-01-12', '2024-01-27'),
+        (10, 'Vice President', '2024-01-17', '2024-02-01');
+        """
+
+        coord_dummy = """
+        INSERT INTO COORD (school_no, fac_no, from_date, to_date) VALUES
+        ('S001', 1, '2024-01-01', '2024-01-15'),
+        ('A002', 2, '2024-01-10', '2024-01-25'),
+        ('S003', 3, '2024-01-05', '2024-01-20'),
+        ('M004', 4, '2024-01-15', '2024-01-30'),
+        ('E005', 5, '2024-01-20', '2024-02-04'),
+        ('I006', 6, '2024-01-25', '2024-02-09'),
+        ('C007', 7, '2024-01-01', '2024-01-16'),
+        ('S001', 8, '2024-01-07', '2024-01-22'),
+        ('A002', 9, '2024-01-12', '2024-01-27'),
+        ('S003', 10, '2024-01-17', '2024-02-01');
+        """
+
+        dept_fac_dummy = """
+        INSERT INTO DEPT_FAC (fac_no, school_no, from_date, to_date) VALUES
+        (1, 'S001', '2024-01-01', '2024-01-15'),
+        (2, 'A002', '2024-01-10', '2024-01-25'),
+        (3, 'S003', '2024-01-05', '2024-01-20'),
+        (4, 'M004', '2024-01-15', '2024-01-30'),
+        (5, 'E005', '2024-01-20', '2024-02-04'),
+        (6, 'I006', '2024-01-25', '2024-02-09'),
+        (7, 'C007', '2024-01-01', '2024-01-16'),
+        (8, 'S001', '2024-01-07', '2024-01-22'),
+        (9, 'A002', '2024-01-12', '2024-01-27'),
+        (10, 'S003', '2024-01-17', '2024-02-01');
+        """
+
+        cursor.execute(faculty_dummy)
+        print("inserted faculty dummies")
+
+        cursor.execute(school_dummy)
+        print("inserted school dummies")
+
+        cursor.execute(payroll_dummy)
+        print("inserted payroll dummies")
+
+        cursor.execute(positions_dummy)
+        print("inserted positions dummies")
+
+        cursor.execute(coord_dummy)
+        print("inserted coord dummies")
+
+        cursor.execute(dept_fac_dummy)
+        print("inserted dept_fac dummies")
+
+        conn.commit()
+        conn.close()
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"{err}")
+
+
+
+def create_init():
+    print("called create init")
+    try:
+        create_dummies()
+        print("created dummies")
+        with open("init.flag", "w") as file:
+            file.write("initialized.")
+    except mysql.connector.Error as err:
+        print(f"{err}")
+        messagebox.showerror(title="Error", message=f"{err}")
+
+
 
 def show_login_form():
-    global login_flag
+
+    global login_flag, username_entry, password_entry, login_window
     login_flag = False  # indicates whether the login is successful or not.
     login_window = tkb.Toplevel(root)
     login_window.title("MySQL Login")
-    login_window.geometry("500x300")
-    login_window.maxsize(460, 200)
-    login_window.minsize(460, 200)
+    login_window.geometry("500x250") #slighly Edited the screen size
+    login_window.maxsize(500, 250)
+    login_window.minsize(500, 200)
 
     def on_close():
         login_window.destroy()  # we destroy the login_window first
@@ -170,20 +303,22 @@ def show_login_form():
     crud_title.grid(row=0, column=2, columnspan=2, pady=(10, 20))
 
     tkb.Label(login_window, text="MySQL Username:").grid(row=1, column=0, pady=(10, 10), padx=(10, 0))
-    username_entry = tkb.Entry(login_window, bootstyle="primary")
+    username_entry = tkb.Entry(login_window, style="primary")  # Fix typo here
     username_entry.grid(row=1, column=2, columnspan=2)
 
     tkb.Label(login_window, text="MySQL Password:").grid(row=2, column=0, padx=(10, 0))
-    password_entry = tkb.Entry(login_window, show="*", bootstyle="primary")
+    password_entry = tkb.Entry(login_window, show="*", style="primary")  # Fix typo here
     password_entry.grid(row=2, column=2, columnspan=2)
 
     def login_callback():
-        global username, password
+        global username, password, login_window
         username = username_entry.get()
         password = password_entry.get()
         login_success = login(username, password, login_window)
         if login_success:
             init_tables()
+            if not check_init():
+                create_init()
             populate_table()
             clear_fields()
 
@@ -191,16 +326,20 @@ def show_login_form():
     login_button.grid(row=3, column=3, sticky=tk.W)
 
     def clear_fields():
-        username_entry.delete(0, tk.END)
-        password_entry.delete(0, tk.END)
+        if username_entry.winfo_exists():
+            username_entry.delete(0, tk.END)
+        if password_entry.winfo_exists():
+            password_entry.delete(0, tk.END)
 
-    clear_button = tkb.Button(login_window, text="Clear", command=clear_fields, bootstyle="danger")
+
+    clear_button = tkb.Button(login_window, text="Clear", command=clear_fields, style="danger")  # Fix typo here
     clear_button.grid(row=3, column=3, pady=5, padx=35)
 
     if login_flag == False:
         clear_fields()
 
     login_window.bind('<Return>', lambda event=None: login_callback())
+
 
 
 def login(username, password, window):
@@ -1748,8 +1887,7 @@ add_placeholder_to(search_entry, "Search for Records")
 search_image = Image.open("search_icon.png")
 search_image = search_image.resize((12, 12))
 search_icon = ImageTk.PhotoImage(search_image)
-search_button = tkb.Button(faculty_options_frame, text="Search", compound=tk.LEFT, command=search_button_click,
-                           padding=(1, 1))
+search_button = tkb.Button(faculty_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1)) #revised format
 search_entry.grid(row=0, column=0, padx=(0, 10), sticky=tk.W)
 search_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1759,8 +1897,7 @@ add_placeholder_to(search_entry_school, "Search for Records")
 search_image_school = Image.open("search_icon.png")
 search_image_school = search_image_school.resize((12, 12))
 search_icon_school = ImageTk.PhotoImage(search_image_school)
-search_school_button = tkb.Button(school_options_frame, text="Search", compound=tk.LEFT,
-                                  command=search_school_button_click, padding=(1, 1))
+search_school_button = tkb.Button(school_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
 search_entry_school.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_school_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1770,8 +1907,7 @@ add_placeholder_to(search_entry_payroll, "Search for Records")
 search_image_payroll = Image.open("search_icon.png")
 search_image_payroll = search_image_payroll.resize((12, 12))
 search_icon_payroll = ImageTk.PhotoImage(search_image_payroll)
-search_payroll_button = tkb.Button(payroll_options_frame, text="Search", compound=tk.LEFT,
-                                   command=search_payroll_button_click, padding=(1, 1))
+search_payroll_button = tkb.Button(payroll_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
 search_entry_payroll.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_payroll_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1781,8 +1917,7 @@ add_placeholder_to(search_entry_positions, "Search for Records")
 search_image_positions = Image.open("search_icon.png")
 search_image_positions = search_image_positions.resize((12, 12))
 search_icon_positions = ImageTk.PhotoImage(search_image_positions)
-search_positions_button = tkb.Button(positions_options_frame, text="Search", compound=tk.LEFT,
-                                     command=search_positions_button_click, padding=(1, 1))
+search_positions_button = tkb.Button(positions_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
 search_entry_positions.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_positions_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1792,8 +1927,7 @@ add_placeholder_to(search_entry_coord, "Search for Records")
 search_image_coord = Image.open("search_icon.png")
 search_image_coord = search_image_coord.resize((12, 12))
 search_icon_coord = ImageTk.PhotoImage(search_image_coord)
-search_coord_button = tkb.Button(coord_options_frame, text="Search", compound=tk.LEFT,
-                                 command=search_coord_button_click, padding=(1, 1))
+search_coord_button = tkb.Button(coord_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
 search_entry_coord.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_coord_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1803,8 +1937,7 @@ add_placeholder_to(search_entry_dept_fac, "Search for Records")
 search_image_dept_fac = Image.open("search_icon.png")
 search_image_dept_fac = search_image_dept_fac.resize((12, 12))
 search_icon_dept_fac = ImageTk.PhotoImage(search_image_dept_fac)
-search_dept_fac_button = tkb.Button(dept_fac_options_frame, text="Search", compound=tk.LEFT,
-                                    command=search_dept_fac_button_click, padding=(1, 1))
+search_dept_fac_button = tkb.Button(dept_fac_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
 search_entry_dept_fac.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_dept_fac_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -2139,27 +2272,34 @@ dept_fac_buttons_frame = tkb.Frame(dept_fac_crud_info_label, padding=10)
 dept_fac_buttons_frame.grid(row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
 
 for i, (text, icon, cmd) in enumerate(zip(button_texts, button_icons, commands)):
-    button = tkb.Button(buttons_frame, text=text, compound=tk.LEFT, command=cmd)
+    # Ensure that the image object is retained to prevent garbage collection
+    button = tkb.Button(buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button.image = icon  # Retain the image object by assigning it to a property of the button
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(school_button_texts, school_button_icons, school_commands)):
-    button = tkb.Button(school_buttons_frame, text=text, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(school_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button.image = icon  # Retain the image object by assigning it to a property of the button
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(payroll_button_texts, payroll_button_icons, payroll_commands)):
-    button = tkb.Button(payroll_buttons_frame, text=text, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(payroll_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button.image = icon  # Retain the image object by assigning it to a property of the button
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(positions_button_texts, positions_button_icons, positions_commands)):
-    button = tkb.Button(positions_buttons_frame, text=text, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(positions_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button.image = icon  # Retain the image object by assigning it to a property of the button
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(coord_button_texts, coord_button_icons, coord_commands)):
-    button = tkb.Button(coord_buttons_frame, text=text, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(coord_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button.image = icon  # Retain the image object by assigning it to a property of the button
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(dept_fac_button_texts, dept_fac_button_icons, dept_fac_commands)):
-    button = tkb.Button(dept_fac_buttons_frame, text=text, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(dept_fac_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button.image = icon  # Retain the image object by assigning it to a property of the button
     button.grid(row=0, column=i, padx=5)
 
 # Treeview for displaying data
