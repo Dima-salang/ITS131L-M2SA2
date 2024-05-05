@@ -1,11 +1,9 @@
 import mysql.connector
 import tkinter as tk
-from tkinter import ttk
 from tkinter import messagebox
 from tkinter import filedialog
 import ttkbootstrap as tkb
 from ttkbootstrap.constants import *
-from ttkbootstrap.tableview import Tableview
 import os
 from PIL import Image, ImageTk
 import csv
