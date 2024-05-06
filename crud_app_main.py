@@ -2630,32 +2630,32 @@ dept_fac_buttons_frame.grid(row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
 for i, (text, icon, cmd) in enumerate(zip(button_texts, button_icons, commands)):
     # Ensure that the image object is retained to prevent garbage collection
     button = tkb.Button(buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
-    button.image = icon  # Retain the image object by assigning it to a property of the button
+    button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(school_button_texts, school_button_icons, school_commands)):
     button = tkb.Button(school_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
-    button.image = icon  # Retain the image object by assigning it to a property of the button
+    button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(payroll_button_texts, payroll_button_icons, payroll_commands)):
     button = tkb.Button(payroll_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
-    button.image = icon  # Retain the image object by assigning it to a property of the button
+    button.image = icon  n
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(positions_button_texts, positions_button_icons, positions_commands)):
     button = tkb.Button(positions_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
-    button.image = icon  # Retain the image object by assigning it to a property of the button
+    button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(coord_button_texts, coord_button_icons, coord_commands)):
     button = tkb.Button(coord_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
-    button.image = icon  # Retain the image object by assigning it to a property of the button
+    button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(dept_fac_button_texts, dept_fac_button_icons, dept_fac_commands)):
     button = tkb.Button(dept_fac_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
-    button.image = icon  # Retain the image object by assigning it to a property of the button
+    button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 # Treeview for displaying data
