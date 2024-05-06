@@ -125,8 +125,11 @@ db_tables_display_frame.grid(row=0, column=1, sticky=(tk.N, tk.W, tk.E, tk.S))
 db_tables_input_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
 db_tables_input_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
+db_tables_display_buttons_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
+db_tables_display_buttons_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
 db_tables_treeview_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
-db_tables_treeview_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+db_tables_treeview_frame.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 
 db_tables_contents_frame = tkb.Frame(db_frame)
@@ -2091,6 +2094,8 @@ def add_db():
         conn.commit()
         conn.close()
 
+        messagebox.showinfo(title="Database added", message=f"Successfully added database {db_value}")
+
         display_db()
     except mysql.connector.Error as err:
         messagebox.showerror(title="Error", message=f"Error: {err}")
@@ -2103,19 +2108,81 @@ def delete_db():
 
         db_value = db_display_entry.get()
 
-        cursor = conn.cursor()
+        # Display a confirmation dialog
+        confirm = messagebox.askokcancel("Confirmation", f"Are you sure you want to delete the database '{db_value}'?")
 
-        delete_sql = f"""DROP DATABASE {db_value}"""
+        if confirm:
+            cursor = conn.cursor()
 
-        cursor.execute(delete_sql)
+            delete_sql = f"""DROP DATABASE {db_value}"""
 
-        display_db()
+            cursor.execute(delete_sql)
 
-        conn.commit()
-        conn.close()
+            display_db()
+
+            conn.commit()
+            conn.close()
     except mysql.connector.Error as err:
         messagebox.showerror(title="Error", message=f"Error: {err}")
 
+
+def show_rename_tb():
+    def confirm_action():
+        if confirmed.get():
+            try:
+                global username, password, selected_db
+                conn = db_conn(username, password, selected_db)
+
+                cursor = conn.cursor()
+
+                new_name_value = new_name_entry.get()
+                rename_sql = f"""RENAME TABLE {curr_name_value} TO {new_name_value}"""
+
+                cursor.execute(rename_sql)
+
+                conn.commit()
+                conn.close()
+
+                db_tables(selected_db)
+                messagebox.showinfo(title="Success", message=f"Successfully renamed table {curr_name_value} to {new_name_value}!")
+            except mysql.connector.Error as err:
+                messagebox.showerror(title="Error", message=f"Error: {err}")
+        # Close the window
+        rename_window.destroy()
+
+    rename_window = tkb.Toplevel(root)
+    rename_window.title("Rename DB")
+
+    # Initialize a BooleanVar to keep track of the user's choice
+    confirmed = tk.BooleanVar(rename_window, False)
+
+    curr_name_label = tkb.Label(rename_window, text="Current Name:")
+    curr_name_label.grid(row=0, column=0)
+
+    curr_name_value = db_table_display_entry.get()
+
+    curr_name_entry = tkb.Entry(rename_window)
+    curr_name_entry.insert(0, curr_name_value)
+    curr_name_entry.config(state='readonly')
+    curr_name_entry.grid(row=0, column=1)
+
+    new_name_label = tkb.Label(rename_window, text="New Name:")
+    new_name_label.grid(row=1, column=0)
+
+    new_name_entry = tkb.Entry(rename_window)
+    new_name_entry.grid(row=1, column=1)
+
+    confirm_button = tkb.Button(rename_window, text="OK", command=lambda: [confirmed.set(True), confirm_action()])
+    confirm_button.grid(row=2, column=0)
+
+    cancel_button = tkb.Button(rename_window, text="Cancel", command=rename_window.destroy)
+    cancel_button.grid(row=2, column=1)
+
+
+
+    
+
+    
 
 
 
@@ -2133,16 +2200,7 @@ def display_db():
     conn.close()
 
 
-add_db_button = tkb.Button(db_display_buttons_frame,
-                           text="Add DB", command=add_db)
-delete_db_button = tkb.Button(
-    db_display_buttons_frame, text="Delete DB", command=delete_db)
-refresh_db_button = tkb.Button(
-    db_display_buttons_frame, text="Refresh", command=display_db)
 
-add_db_button.grid(row=2, column=0)
-delete_db_button.grid(row=2, column=1)
-refresh_db_button.grid(row=2, column=2)
 
 
 
@@ -2232,6 +2290,22 @@ def table_vals(db_name, table_name):
 def delete_treeview(treeview_table):
     treeview_table.destroy()
     treeview_table.update()
+
+
+add_db_button = tkb.Button(db_display_buttons_frame,
+                           text="Add DB", command=add_db)
+delete_db_button = tkb.Button(
+    db_display_buttons_frame, text="Delete DB", command=delete_db)
+refresh_db_button = tkb.Button(
+    db_display_buttons_frame, text="Refresh", command=display_db)
+rename_table_button = tkb.Button(db_tables_display_buttons_frame, text="Rename", command=show_rename_tb)
+refresh_tb_button = tkb.Button(db_tables_display_buttons_frame, text="Refresh", command=db_tables)
+
+add_db_button.grid(row=2, column=0)
+delete_db_button.grid(row=2, column=1)
+refresh_db_button.grid(row=2, column=2)
+rename_table_button.grid(row=2, column=0)
+refresh_tb_button.grid(row=2, column=1)
 
 # Adjusting weights for resizing behavior
 root.columnconfigure(1, weight=3)  # Give more weight to the table frame
@@ -2640,7 +2714,7 @@ for i, (text, icon, cmd) in enumerate(zip(school_button_texts, school_button_ico
 
 for i, (text, icon, cmd) in enumerate(zip(payroll_button_texts, payroll_button_icons, payroll_commands)):
     button = tkb.Button(payroll_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
-    button.image = icon  n
+    button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(positions_button_texts, positions_button_icons, positions_commands)):
