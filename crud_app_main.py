@@ -5,6 +5,7 @@ from tkinter import filedialog
 import ttkbootstrap as tkb
 from ttkbootstrap.constants import *
 import os
+import sys
 from PIL import Image, ImageTk
 import csv
 import subprocess
@@ -272,11 +273,19 @@ def create_init():
     try:
         create_dummies()
         print("created dummies")
-        with open("init.flag", "w") as file:
-            file.write("initialized.")
+
     except mysql.connector.Error as err:
         print(f"{err}")
         messagebox.showerror(title="Error", message=f"{err}")
+    else:
+        # Get the directory where the PyInstaller executable is located
+        current_directory = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+
+        # Join the current directory with the file name
+        flag_file_path = os.path.join(current_directory, "init.flag")
+
+        with open(flag_file_path, "w") as file:
+            file.write("initialized.")
 
 
 
