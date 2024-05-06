@@ -107,14 +107,36 @@ dept_fac_options_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 db_frame = tkb.Frame(crud_notebook)
 db_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-db_display_frame = tkb.Frame(db_frame)
+db_display_frame = tkb.Frame(db_frame, padding="0 8 10 10")
 db_display_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-db_tables_display_frame = tkb.Frame(db_frame)
+db_display_input_frame = tkb.Frame(db_display_frame, padding="0 8 10 10")
+db_display_input_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_display_buttons_frame = tkb.Frame(db_display_frame, padding="0 8 10 10")
+db_display_buttons_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_display_treeview_frame = tkb.Frame(db_display_frame, padding="0 8 10 10")
+db_display_treeview_frame.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_display_frame = tkb.Frame(db_frame, padding="0 8 10 10")
 db_tables_display_frame.grid(row=0, column=1, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_input_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
+db_tables_input_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_treeview_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
+db_tables_treeview_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
 
 db_tables_contents_frame = tkb.Frame(db_frame)
 db_tables_contents_frame.grid(row=0, column=2, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_contents_input_frame = tkb.Frame(db_tables_contents_frame)
+db_tables_contents_input_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_contents_treeview_frame = tkb.Frame(db_tables_contents_frame)
+db_tables_contents_treeview_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 
 
@@ -125,6 +147,19 @@ crud_notebook.add(positions_frame, text="Positions")
 crud_notebook.add(coord_frame, text="Coordinators")
 crud_notebook.add(dept_fac_frame, text="Department Faculties")
 crud_notebook.add(db_frame, text="DB Management")
+
+
+def external_conn(username, password):
+    try:
+        conn = mysql.connector.connect(
+            host="localhost",
+            username=username,
+            password=password
+        )
+
+        return conn
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"Error: {err}")
 
 
 # function to establish a connection to the MySQL server. Returns a connector object.
@@ -2011,7 +2046,23 @@ def dept_fac_sort_by(search_column, opt_ord):
 
 
 """ DB MANAGEMENT SECTION """
-# Treeview for displaying data for the db_tables_contents_treeview
+
+
+
+
+db_display_label = tkb.Label(db_display_input_frame, text="Database Name")
+db_display_label.grid(row=0, column=0)
+
+db_display_entry = tkb.Entry(db_display_input_frame)
+db_display_entry.grid(row=1, column=0)
+
+db_table_display_label = tkb.Label(db_tables_input_frame, text="Table Name")
+db_table_display_label.grid(row=0, column=0)
+
+db_table_display_entry = tkb.Entry(db_tables_input_frame)
+db_table_display_entry.grid(row=1, column=0)
+
+# initial Treeview for displaying data for the db_tables_contents_treeview
 db_tables_contents_treeview = tkb.Treeview(db_tables_contents_frame,
                                 columns=("Table View",),
                                 show="headings", bootstyle="info")
@@ -2020,26 +2071,53 @@ for col in db_tables_contents_treeview["columns"]:
     db_tables_contents_treeview.column(col, anchor=tk.W, stretch=NO)
 db_tables_contents_treeview.grid(row=1, column=0)
 
-
 selected_db = None
 
-add_db_button = tkb.Button(db_display_frame, text="Add DB")
-delete_db_button = tkb.Button(db_display_frame, text="Delete DB")
-refresh_db_button = tkb.Button(db_display_frame, text="Refresh")
+def add_db():
+    print("called add_db")
+    global username, password
+    try:
+        conn = external_conn(username, password)
+
+        db_value = db_display_entry.get()
+
+        cursor = conn.cursor()
+
+        add_db_sql = f"""CREATE DATABASE IF NOT EXISTS {db_value}"""
+
+        cursor.execute(add_db_sql)
+
+
+        conn.commit()
+        conn.close()
+
+        display_db()
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"Error: {err}")
+
+
+def delete_db():
+    global username, password
+    try:
+        conn = external_conn(username, password)
+
+        db_value = db_display_entry.get()
+
+        cursor = conn.cursor()
+
+        delete_sql = f"""DROP DATABASE {db_value}"""
+
+        cursor.execute(delete_sql)
+
+        display_db()
+
+        conn.commit()
+        conn.close()
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"Error: {err}")
 
 
 
-db_display_label = tkb.Label(db_display_frame, text="Database Name")
-db_display_label.grid(row=0, column=0)
-
-db_display_entry = tkb.Entry(db_display_frame)
-db_display_entry.grid(row=1, column=0)
-
-db_table_display_label = tkb.Label(db_tables_display_frame, text="Table Name")
-db_table_display_label.grid(row=0, column=0)
-
-db_table_display_entry = tkb.Entry(db_tables_display_frame)
-db_table_display_entry.grid(row=1, column=0)
 
 
 def display_db():
@@ -2053,6 +2131,23 @@ def display_db():
     for row in rows:
         db_display_treeview.insert("", "end", values=row)
     conn.close()
+
+
+add_db_button = tkb.Button(db_display_buttons_frame,
+                           text="Add DB", command=add_db)
+delete_db_button = tkb.Button(
+    db_display_buttons_frame, text="Delete DB", command=delete_db)
+refresh_db_button = tkb.Button(
+    db_display_buttons_frame, text="Refresh", command=display_db)
+
+add_db_button.grid(row=2, column=0)
+delete_db_button.grid(row=2, column=1)
+refresh_db_button.grid(row=2, column=2)
+
+
+
+
+
 
 
 def db_select(event):
@@ -2630,22 +2725,24 @@ dept_fac_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 
 # Treeview for displaying data for db_display
-db_display_treeview = tkb.Treeview(db_display_frame,
+db_display_treeview = tkb.Treeview(db_display_treeview_frame,
                                 columns=("Database Name",),
                                 show="headings", bootstyle="info")
 for col in db_display_treeview["columns"]:
     db_display_treeview.heading(col, text=col)
     db_display_treeview.column(col, anchor=tk.W, stretch=NO)
-db_display_treeview.grid(row=2, column=0)
+db_display_treeview.grid(row=3, column=0)
+db_display_treeview.configure(height=24)
 
 # Treeview for displaying data for the db_tables_display_frame
-db_tables_display_treeview = tkb.Treeview(db_tables_display_frame,
+db_tables_display_treeview = tkb.Treeview(db_tables_treeview_frame,
                                 columns=("Table Name",),
                                 show="headings", bootstyle="info")
 for col in db_tables_display_treeview["columns"]:
     db_tables_display_treeview.heading(col, text=col)
     db_tables_display_treeview.column(col, anchor=tk.W, stretch=NO)
-db_tables_display_treeview.grid(row=2, column=0)
+db_tables_display_treeview.grid(row=3, column=0)
+db_tables_display_treeview.configure(height=24)
 
 
 
