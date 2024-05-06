@@ -135,22 +135,20 @@ db_tables_treeview_frame = tkb.Frame(
     db_tables_display_frame, padding="0 8 10 10")
 db_tables_treeview_frame.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-
-db_tables_contents_frame = tkb.Frame(db_frame, padding="0 128 10 10")
+db_tables_contents_frame = tkb.Frame(db_frame, padding="0 75 10 10")
 db_tables_contents_frame.grid(row=0, column=2, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 db_tables_contents_input_frame = tkb.Frame(db_tables_contents_frame)
 db_tables_contents_input_frame.grid(
     row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-db_tables_contents_buttons_frame = tkb.Frame(db_tables_contents_frame)
+db_tables_contents_buttons_frame = tkb.Frame(db_tables_contents_frame, padding="0 06 10 20")
 db_tables_contents_buttons_frame.grid(
     row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 db_tables_contents_treeview_frame = tkb.Frame(db_tables_contents_frame)
 db_tables_contents_treeview_frame.grid(
     row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
-
 
 crud_notebook.add(faculty_frame, text="Faculty")
 crud_notebook.add(school_frame, text="School")
@@ -229,7 +227,6 @@ def check_init():
 
 
 def create_dummies():
-
     try:
         global username, password, db
         conn = db_conn(username, password, db)
@@ -362,7 +359,6 @@ def create_init():
 
 
 def show_login_form():
-
     global login_flag, username_entry, password_entry, login_window
     login_flag = False  # indicates whether the login is successful or not.
     login_window = tkb.Toplevel(root)
@@ -628,8 +624,9 @@ def update_data(fac_no, fac_lname, fac_fname, birth_date, hire_date):
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE FACULTY SET fac_no=%s, fac_lname=%s, fac_fname=%s, birth_date=%s, hire_date=%s WHERE fac_no=%s",
-                       (fac_no, fac_lname, fac_fname, birth_date, hire_date, fac_no))
+        cursor.execute(
+            "UPDATE FACULTY SET fac_no=%s, fac_lname=%s, fac_fname=%s, birth_date=%s, hire_date=%s WHERE fac_no=%s",
+            (fac_no, fac_lname, fac_fname, birth_date, hire_date, fac_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     except mysql.connector.Error as err:
@@ -718,7 +715,7 @@ def search_records(keyword):
     cursor = conn.cursor()
     query = "SELECT * FROM FACULTY WHERE fac_no LIKE %s OR fac_lname LIKE %s OR fac_fname LIKE %s OR birth_date LIKE %s OR hire_date LIKE %s"
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%',
-                   '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+                           '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     treeview.delete(*treeview.get_children())
     for row in rows:
@@ -1190,7 +1187,7 @@ def search_payroll_records(keyword):
                         INNER JOIN FACULTY ON PAYROLL.fac_no = FACULTY.fac_no 
                         WHERE payroll_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR FACULTY.fac_no LIKE %s OR PAYROLL.fac_pay LIKE %s OR PAYROLL.from_date LIKE %s OR PAYROLL.to_date LIKE %s"""
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword +
-                   '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+                           '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     payroll_treeview.delete(*payroll_treeview.get_children())
     for row in rows:
@@ -1214,7 +1211,7 @@ def payroll_write_to_csv():
                 writer = csv.writer(csv_file)
 
                 writer.writerow(["Payroll Number", "Faculty Number",
-                                "Full Name", "Pay Amount", "From Date", "To Date"])
+                                 "Full Name", "Pay Amount", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1465,7 +1462,7 @@ def search_positions_records(keyword):
                     INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no 
                     WHERE positions_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR POSITIONS.fac_no LIKE %s OR pos LIKE %s OR POSITIONS.from_date LIKE %s OR POSITIONS.to_date LIKE %s"""
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword +
-                   '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+                           '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     positions_treeview.delete(*positions_treeview.get_children())
     for row in rows:
@@ -1489,7 +1486,7 @@ def positions_write_to_csv():
                 writer = csv.writer(csv_file)
 
                 writer.writerow(["Position Number", "Faculty Number",
-                                "Full Name", "Position", "From Date", "To Date"])
+                                 "Full Name", "Position", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1738,7 +1735,7 @@ def search_coord_records(keyword):
                     INNER JOIN SCHOOL ON COORD.school_no = SCHOOL.school_no 
                     WHERE coord_no LIKE %s OR SCHOOL.school_name LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR COORD.school_no LIKE %s OR COORD.fac_no LIKE %s OR COORD.from_date LIKE %s OR COORD.to_date LIKE %s"""
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%',
-                   '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+                           '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     coord_treeview.delete(*coord_treeview.get_children())
     for row in rows:
@@ -1762,7 +1759,7 @@ def coord_write_to_csv():
                 writer = csv.writer(csv_file)
 
                 writer.writerow(["Coordinator Number", "School Number",
-                                "Faculty Number", "School", "Full Name", "From Date", "To Date"])
+                                 "Faculty Number", "School", "Full Name", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -2017,7 +2014,7 @@ def search_dept_fac_records(keyword):
                     INNER JOIN SCHOOL ON DEPT_FAC.school_no = SCHOOL.school_no
                     WHERE dept_fac_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR SCHOOL.school_name LIKE %s OR FACULTY.fac_no LIKE %s OR SCHOOL.school_no LIKE %s OR DEPT_FAC.from_date LIKE %s OR DEPT_FAC.to_date LIKE %s"""
     cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%',
-                   '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+                           '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     dept_fac_treeview.delete(*dept_fac_treeview.get_children())
     for row in rows:
@@ -2041,7 +2038,8 @@ def dept_fac_write_to_csv():
                 writer = csv.writer(csv_file)
 
                 writer.writerow(
-                    ["Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date", "To Date"])
+                    ["Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date",
+                     "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -2119,7 +2117,6 @@ def dept_fac_sort_by(search_column, opt_ord):
 
 
 """ DB MANAGEMENT SECTION """
-
 
 db_display_label = tkb.Label(db_display_input_frame, text="Database Name")
 db_display_label.grid(row=0, column=0)
@@ -2244,7 +2241,7 @@ def show_rename_tb():
     new_name_entry.grid(row=1, column=1)
 
     confirm_button = tkb.Button(rename_window, text="OK", command=lambda: [
-                                confirmed.set(True), confirm_action()])
+        confirmed.set(True), confirm_action()])
     confirm_button.grid(row=2, column=0)
 
     cancel_button = tkb.Button(
@@ -2341,7 +2338,6 @@ def delete_table():
             except mysql.connector.Error as err:
                 messagebox.showerror("Error", f"Error: {err}")
 
-    
 
 def display_db():
     global username, password, db
@@ -2456,12 +2452,12 @@ add_table_button = tkb.Button(db_tables_contents_buttons_frame, text="Add Table"
 delete_table_button = tkb.Button(db_tables_contents_buttons_frame, text="Delete Table", command=delete_table)
 
 add_db_button.grid(row=2, column=0)
-delete_db_button.grid(row=2, column=1)
-refresh_db_button.grid(row=2, column=2)
+delete_db_button.grid(row=2, column=1, padx=(4, 0))
+refresh_db_button.grid(row=2, column=2, padx=(4, 0))
 rename_table_button.grid(row=2, column=0)
-refresh_tb_button.grid(row=2, column=1)
+refresh_tb_button.grid(row=2, column=1, padx=(4, 0))
 add_table_button.grid(row=0, column=0)
-delete_table_button.grid(row=0, column=1)
+delete_table_button.grid(row=0, column=1, padx=(4, 0))
 
 # Adjusting weights for resizing behavior
 root.columnconfigure(1, weight=3)  # Give more weight to the table frame
@@ -2747,7 +2743,6 @@ school_no_entry, school_name_entry = school_entries
 add_placeholder_to(school_no_entry, "Enter School Number")
 add_placeholder_to(school_name_entry, "Enter School Name")
 
-
 # Labels and entries for Faculty
 labels = ["Faculty Number", "Last Name",
           "First Name", "Birth Date", "Hire Date"]
@@ -2992,7 +2987,6 @@ payroll_treeview.column("Payroll Number", width=40)
 payroll_treeview.column("Faculty Number", width=40)
 payroll_treeview.grid(row=2, column=0)
 
-
 positions_treeview = tkb.Treeview(positions_table_frame,
                                   columns=("Position Number", "Faculty Number",
                                            "Full Name", "Position", "From Date", "To Date"),
@@ -3015,12 +3009,12 @@ coord_treeview.column("School Number", width=50)
 coord_treeview.column("Coordinator Number", width=40)
 coord_treeview.column("Faculty Number", width=40)
 
-
 coord_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 dept_fac_treeview = tkb.Treeview(dept_fac_table_frame, columns=(
-    "Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date", "To Date"), show="headings",
-    bootstyle="info")
+    "Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date", "To Date"),
+                                 show="headings",
+                                 bootstyle="info")
 for col in dept_fac_treeview["columns"]:
     dept_fac_treeview.heading(col, text=col)
     dept_fac_treeview.column(col, anchor=tk.W, width=150)
@@ -3029,7 +3023,6 @@ dept_fac_treeview.column("Department Faculty Number", width=40)
 dept_fac_treeview.column("School Number", width=50)
 
 dept_fac_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
-
 
 # Treeview for displaying data for db_display
 db_display_treeview = tkb.Treeview(db_display_treeview_frame,
@@ -3051,7 +3044,6 @@ for col in db_tables_display_treeview["columns"]:
 db_tables_display_treeview.grid(row=3, column=0)
 db_tables_display_treeview.configure(height=24)
 
-
 # Bind select event
 treeview.bind('<<TreeviewSelect>>', select_item)
 school_treeview.bind('<<TreeviewSelect>>', select_item_school)
@@ -3061,7 +3053,6 @@ coord_treeview.bind('<<TreeviewSelect>>', select_item_coord)
 dept_fac_treeview.bind('<<TreeviewSelect>>', select_item_dept_fac)
 db_display_treeview.bind('<<TreeviewSelect>>', db_select)
 db_tables_display_treeview.bind('<<TreeviewSelect>>', table_select)
-
 
 crud_notebook.bind("<<NotebookTabChanged>>", on_tab_change)
 
