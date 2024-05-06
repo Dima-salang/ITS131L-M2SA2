@@ -21,7 +21,7 @@ os.chdir(current_directory)
 root = tkb.Window(themename="superhero")
 root.title("CRUD Application")
 
-#slighly Edited the screen size
+# slighly Edited the screen size
 root.geometry("1700x700")
 root.withdraw()
 
@@ -117,7 +117,8 @@ db_display_buttons_frame = tkb.Frame(db_display_frame, padding="0 8 10 10")
 db_display_buttons_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 db_display_treeview_frame = tkb.Frame(db_display_frame, padding="0 8 10 10")
-db_display_treeview_frame.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+db_display_treeview_frame.grid(
+    row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 db_tables_display_frame = tkb.Frame(db_frame, padding="0 8 10 10")
 db_tables_display_frame.grid(row=0, column=1, sticky=(tk.N, tk.W, tk.E, tk.S))
@@ -125,22 +126,30 @@ db_tables_display_frame.grid(row=0, column=1, sticky=(tk.N, tk.W, tk.E, tk.S))
 db_tables_input_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
 db_tables_input_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-db_tables_display_buttons_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
-db_tables_display_buttons_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+db_tables_display_buttons_frame = tkb.Frame(
+    db_tables_display_frame, padding="0 8 10 10")
+db_tables_display_buttons_frame.grid(
+    row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
-db_tables_treeview_frame = tkb.Frame(db_tables_display_frame, padding="0 8 10 10")
+db_tables_treeview_frame = tkb.Frame(
+    db_tables_display_frame, padding="0 8 10 10")
 db_tables_treeview_frame.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 
-db_tables_contents_frame = tkb.Frame(db_frame)
+db_tables_contents_frame = tkb.Frame(db_frame, padding="0 128 10 10")
 db_tables_contents_frame.grid(row=0, column=2, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 db_tables_contents_input_frame = tkb.Frame(db_tables_contents_frame)
-db_tables_contents_input_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+db_tables_contents_input_frame.grid(
+    row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_contents_buttons_frame = tkb.Frame(db_tables_contents_frame)
+db_tables_contents_buttons_frame.grid(
+    row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 db_tables_contents_treeview_frame = tkb.Frame(db_tables_contents_frame)
-db_tables_contents_treeview_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
-
+db_tables_contents_treeview_frame.grid(
+    row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 
 crud_notebook.add(faculty_frame, text="Faculty")
@@ -180,7 +189,8 @@ def db_conn(username, passwd, db):
         )
         return conn
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error Authenticating", message=f"Error: {err}")
+        messagebox.showerror(title="Error Authenticating",
+                             message=f"Error: {err}")
 
 
 # function to build the database first
@@ -202,13 +212,15 @@ def build_db(username, passwd):
         conn.commit()
         conn.close()
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error creating database", message=f"Error creating database: {err}")
+        messagebox.showerror(title="Error creating database",
+                             message=f"Error creating database: {err}")
         return
 
 
 # function to check whether the user already initialized the app once to prevent inserting redundant dummy data
 def check_init():
-    current_directory = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+    current_directory = getattr(
+        sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
 
     # Join the current directory with the file name
     flag_file_path = os.path.join(current_directory, "init.flag")
@@ -339,7 +351,8 @@ def create_init():
         messagebox.showerror(title="Error", message=f"{err}")
     else:
         # Get the directory where the PyInstaller executable is located
-        current_directory = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+        current_directory = getattr(
+            sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
 
         # Join the current directory with the file name
         flag_file_path = os.path.join(current_directory, "init.flag")
@@ -348,14 +361,13 @@ def create_init():
             file.write("initialized.")
 
 
-
 def show_login_form():
 
     global login_flag, username_entry, password_entry, login_window
     login_flag = False  # indicates whether the login is successful or not.
     login_window = tkb.Toplevel(root)
     login_window.title("MySQL Login")
-    login_window.geometry("500x250") #slighly Edited the screen size
+    login_window.geometry("500x250")  # slighly Edited the screen size
     login_window.maxsize(500, 250)
     login_window.minsize(500, 200)
 
@@ -365,15 +377,19 @@ def show_login_form():
 
     login_window.protocol("WM_DELETE_WINDOW", on_close)
 
-    crud_title = tkb.Label(login_window, text="Simple CRUD", font=("Helvetica", 28, 'underline'))
+    crud_title = tkb.Label(login_window, text="Simple CRUD",
+                           font=("Helvetica", 28, 'underline'))
     crud_title.grid(row=0, column=2, columnspan=2, pady=(10, 20))
 
-    tkb.Label(login_window, text="MySQL Username:").grid(row=1, column=0, pady=(10, 10), padx=(10, 0))
+    tkb.Label(login_window, text="MySQL Username:").grid(
+        row=1, column=0, pady=(10, 10), padx=(10, 0))
     username_entry = tkb.Entry(login_window, style="primary")  # Fix typo here
     username_entry.grid(row=1, column=2, columnspan=2)
 
-    tkb.Label(login_window, text="MySQL Password:").grid(row=2, column=0, padx=(10, 0))
-    password_entry = tkb.Entry(login_window, show="*", style="primary")  # Fix typo here
+    tkb.Label(login_window, text="MySQL Password:").grid(
+        row=2, column=0, padx=(10, 0))
+    password_entry = tkb.Entry(
+        login_window, show="*", style="primary")  # Fix typo here
     password_entry.grid(row=2, column=2, columnspan=2)
 
     def login_callback():
@@ -382,13 +398,15 @@ def show_login_form():
         password = password_entry.get()
         login_success = login(username, password, login_window)
         if login_success:
-            init_tables()
+
             if not check_init():
+                init_tables()
                 create_init()
             populate_table()
             clear_fields()
 
-    login_button = tkb.Button(login_window, text="Login", command=login_callback, style="success")
+    login_button = tkb.Button(
+        login_window, text="Login", command=login_callback, style="success")
     login_button.grid(row=3, column=3, sticky=tk.W)
 
     def clear_fields():
@@ -397,15 +415,14 @@ def show_login_form():
         if password_entry.winfo_exists():
             password_entry.delete(0, tk.END)
 
-
-    clear_button = tkb.Button(login_window, text="Clear", command=clear_fields, style="danger")  # Fix typo here
+    clear_button = tkb.Button(login_window, text="Clear",
+                              command=clear_fields, style="danger")  # Fix typo here
     clear_button.grid(row=3, column=3, pady=5, padx=35)
 
     if login_flag == False:
         clear_fields()
 
     login_window.bind('<Return>', lambda event=None: login_callback())
-
 
 
 def login(username, password, window):
@@ -418,7 +435,8 @@ def login(username, password, window):
         root.deiconify()
         return True
     except mysql.connector.Error as err:
-        messagebox.showerror("Login Failed", "Invalfac_no Credentials! Could not connect to MySQL: {}".format(err))
+        messagebox.showerror(
+            "Login Failed", "Invalfac_no Credentials! Could not connect to MySQL: {}".format(err))
         return False
 
 
@@ -522,7 +540,8 @@ def init_tables():
         conn.commit()
         conn.close()
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error in creating tables", message=f"Error in creating tables: {err}")
+        messagebox.showerror(title="Error in creating tables",
+                             message=f"Error in creating tables: {err}")
 
 
 """ GLOBAL FUNCTIONS """
@@ -542,7 +561,8 @@ def backup_db():
             # we use subprocess to interact with a terminal
             subprocess.run(command, shell=True)
 
-            messagebox.showinfo(title="DB Saved", message=f"Database {db} successfully saved at {sql_path}")
+            messagebox.showinfo(
+                title="DB Saved", message=f"Database {db} successfully saved at {sql_path}")
     except Exception as err:
         messagebox.showerror(title="Error", message=f"Error: {err}")
 
@@ -608,12 +628,13 @@ def update_data(fac_no, fac_lname, fac_fname, birth_date, hire_date):
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("UPDATE FACULTY SET fac_lname=%s, fac_fname=%s, birth_date=%s, hire_date=%s WHERE fac_no=%s",
-                       (fac_lname, fac_fname, birth_date, hire_date, fac_no))
+        cursor.execute("UPDATE FACULTY SET fac_no=%s, fac_lname=%s, fac_fname=%s, birth_date=%s, hire_date=%s WHERE fac_no=%s",
+                       (fac_no, fac_lname, fac_fname, birth_date, hire_date, fac_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
+        messagebox.showerror(
+            title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -627,7 +648,8 @@ def delete_data(fac_no):
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     except mysql.connector.IntegrityError:
-        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
+        messagebox.showerror(
+            title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -669,7 +691,8 @@ def add_record():
 
     if fac_no_value and fac_lname_value and fac_fname_value and birth_date_value and hire_date_value:
         try:
-            insert_data(fac_no_value, fac_lname_value, fac_fname_value, birth_date_value, hire_date_value)
+            insert_data(fac_no_value, fac_lname_value,
+                        fac_fname_value, birth_date_value, hire_date_value)
             clear_entries()
             populate_table()
         except:
@@ -694,7 +717,8 @@ def search_records(keyword):
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
     query = "SELECT * FROM FACULTY WHERE fac_no LIKE %s OR fac_lname LIKE %s OR fac_fname LIKE %s OR birth_date LIKE %s OR hire_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%',
+                   '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     treeview.delete(*treeview.get_children())
     for row in rows:
@@ -731,7 +755,8 @@ def faculty_write_to_csv():
                     writer.writerow(row)
                 conn.close()
 
-            messagebox.showinfo(title="Write Success", message=f"Data successfully written to {csv_path}")
+            messagebox.showinfo(
+                title="Write Success", message=f"Data successfully written to {csv_path}")
         except Exception as err:
             messagebox.showerror(title="Error", message=f"Error: {err}")
 
@@ -766,7 +791,8 @@ def faculty_sort_by(search_column, opt_ord):
             search_column = "hire_date"
         case _:
             # Handle invalid search column
-            messagebox.showerror(title="Error", message="Invalid search column")
+            messagebox.showerror(
+                title="Error", message="Invalid search column")
             return
     print(search_column)
 
@@ -831,7 +857,8 @@ def update_data_school(school_no, school_name):
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
+        messagebox.showerror(
+            title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -845,7 +872,8 @@ def delete_data_school(school_no):
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     except mysql.connector.IntegrityError:
-        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
+        messagebox.showerror(
+            title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -948,7 +976,8 @@ def school_write_to_csv():
                     writer.writerow(row)
                 conn.close()
 
-            messagebox.showinfo(title="Write Success", message=f"Data successfully written to {csv_path}")
+            messagebox.showinfo(
+                title="Write Success", message=f"Data successfully written to {csv_path}")
         except Exception as err:
             messagebox.showerror(title="Error", message=f"Error: {err}")
 
@@ -961,7 +990,8 @@ def school_sort_by(search_column, opt_ord):
             search_column = "school_name"
         case _:
             # Handle invalid search column
-            messagebox.showerror(title="Error", message="Invalid search column")
+            messagebox.showerror(
+                title="Error", message="Invalid search column")
             return
     print(search_column)
 
@@ -1006,7 +1036,8 @@ def select_item_payroll(event):
 
 
 def insert_data_payroll(payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date):
-    print(payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date)
+    print(payroll_fac_no, payroll_pay_amount,
+          payroll_from_date, payroll_to_date)
     global username, password, db
     print("insert_data called db_conn")
     conn = db_conn(username, password, db)
@@ -1034,7 +1065,8 @@ def update_data_payroll(payroll_no, payroll_fac_no, payroll_pay_amount, payroll_
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
+        messagebox.showerror(
+            title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -1044,11 +1076,13 @@ def delete_data_payroll(payroll_no):
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM PAYROLL WHERE payroll_no=%s", (payroll_no,))
+        cursor.execute(
+            "DELETE FROM PAYROLL WHERE payroll_no=%s", (payroll_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     except mysql.connector.IntegrityError:
-        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
+        messagebox.showerror(
+            title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -1072,7 +1106,8 @@ def add_record_payroll():
 
     if payroll_fac_no_value and payroll_pay_amount_value and payroll_from_date_value and payroll_to_date_value:
         if payroll_from_date_value > payroll_to_date_value:
-            messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+            messagebox.showerror(
+                title="Error:", message="From date cannot exceed To Date")
             return
         try:
             insert_data_payroll(payroll_fac_no_value, payroll_pay_amount_value, payroll_from_date_value,
@@ -1094,7 +1129,8 @@ def update_record_payroll():
     payroll_to_date_value = payroll_to_date_entry.get()
     if selected_item:
         if payroll_from_date_value > payroll_to_date_value:
-            messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+            messagebox.showerror(
+                title="Error:", message="From date cannot exceed To Date")
             return
         else:
             try:
@@ -1153,7 +1189,8 @@ def search_payroll_records(keyword):
                         FROM PAYROLL 
                         INNER JOIN FACULTY ON PAYROLL.fac_no = FACULTY.fac_no 
                         WHERE payroll_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR FACULTY.fac_no LIKE %s OR PAYROLL.fac_pay LIKE %s OR PAYROLL.from_date LIKE %s OR PAYROLL.to_date LIKE %s"""
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword +
+                   '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     payroll_treeview.delete(*payroll_treeview.get_children())
     for row in rows:
@@ -1176,7 +1213,8 @@ def payroll_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Payroll Number", "Faculty Number", "Full Name", "Pay Amount", "From Date", "To Date"])
+                writer.writerow(["Payroll Number", "Faculty Number",
+                                "Full Name", "Pay Amount", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1197,7 +1235,8 @@ def payroll_write_to_csv():
                     writer.writerow(row)
                 conn.close()
 
-            messagebox.showinfo(title="Write Success", message=f"Data successfully written to {csv_path}")
+            messagebox.showinfo(
+                title="Write Success", message=f"Data successfully written to {csv_path}")
         except Exception as err:
             messagebox.showerror(title="Error", message=f"Error: {err}")
 
@@ -1216,7 +1255,8 @@ def payroll_sort_by(search_column, opt_ord):
             search_column = "to_date"
         case _:
             # Handle invalid search column
-            messagebox.showerror(title="Error", message="Invalid search column")
+            messagebox.showerror(
+                title="Error", message="Invalid search column")
             return
     print(search_column)
     global username, password, db
@@ -1269,7 +1309,8 @@ def select_item_positions(event):
 
 
 def insert_data_positions(positions_fac_no, positions_position, positions_from_date, positions_to_date):
-    print(positions_fac_no, positions_position, positions_from_date, positions_to_date)
+    print(positions_fac_no, positions_position,
+          positions_from_date, positions_to_date)
     global username, password, db
     print("insert_data called db_conn")
     conn = db_conn(username, password, db)
@@ -1297,7 +1338,8 @@ def update_data_positions(positions_no, positions_fac_no, positions_position, po
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
+        messagebox.showerror(
+            title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -1307,11 +1349,13 @@ def delete_data_positions(positions_no):
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM POSITIONS WHERE positions_no=%s", (positions_no,))
+        cursor.execute(
+            "DELETE FROM POSITIONS WHERE positions_no=%s", (positions_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     except mysql.connector.IntegrityError:
-        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
+        messagebox.showerror(
+            title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -1347,7 +1391,8 @@ def populate_table_positions():
 def delete_record_positions():
     selected_item = positions_treeview.selection()
     if selected_item:
-        delete_data_positions(positions_treeview.item(selected_item)['values'][0])
+        delete_data_positions(
+            positions_treeview.item(selected_item)['values'][0])
         clear_entries_positions()
         populate_table_positions()
     else:
@@ -1363,7 +1408,8 @@ def add_record_positions():
     if positions_fac_no_value and positions_position_value and positions_from_date_value:
         if positions_to_date_value != "Enter To Date":
             if positions_from_date_value > positions_to_date_value:
-                messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+                messagebox.showerror(
+                    title="Error:", message="From date cannot exceed To Date")
                 return
         else:
             positions_to_date_value = None
@@ -1387,7 +1433,8 @@ def update_record_positions():
     positions_to_date_value = positions_to_date_entry.get()
     if selected_item:
         if positions_from_date_value > positions_to_date_value:
-            messagebox.showerror(title="Error:", message="From date cannot exceed To Date")
+            messagebox.showerror(
+                title="Error:", message="From date cannot exceed To Date")
             return
         else:
             try:
@@ -1417,7 +1464,8 @@ def search_positions_records(keyword):
                     FROM POSITIONS 
                     INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no 
                     WHERE positions_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR POSITIONS.fac_no LIKE %s OR pos LIKE %s OR POSITIONS.from_date LIKE %s OR POSITIONS.to_date LIKE %s"""
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword +
+                   '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     positions_treeview.delete(*positions_treeview.get_children())
     for row in rows:
@@ -1440,7 +1488,8 @@ def positions_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Position Number", "Faculty Number", "Full Name", "Position", "From Date", "To Date"])
+                writer.writerow(["Position Number", "Faculty Number",
+                                "Full Name", "Position", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1461,7 +1510,8 @@ def positions_write_to_csv():
                     writer.writerow(row)
                 conn.close()
 
-            messagebox.showinfo(title="Write Success", message=f"Data successfully written to {csv_path}")
+            messagebox.showinfo(
+                title="Write Success", message=f"Data successfully written to {csv_path}")
         except Exception as err:
             messagebox.showerror(title="Error", message=f"Error: {err}")
 
@@ -1480,7 +1530,8 @@ def positions_sort_by(search_column, opt_ord):
             search_column = "to_date"
         case _:
             # Handle invalid search column
-            messagebox.showerror(title="Error", message="Invalid search column")
+            messagebox.showerror(
+                title="Error", message="Invalid search column")
             return
 
     print(search_column)
@@ -1562,7 +1613,8 @@ def update_data_coord(coord_no, coord_school_no, coord_fac_no, coord_from_date, 
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
+        messagebox.showerror(
+            title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -1577,7 +1629,8 @@ def delete_data_coord(coord_no):
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     except mysql.connector.IntegrityError:
-        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
+        messagebox.showerror(
+            title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -1629,12 +1682,14 @@ def add_record_coord():
     if coord_school_no_value and coord_fac_no_value and coord_from_date_value:
         if coord_to_date_value != "Enter To Date":
             if coord_from_date_value > coord_to_date_value:
-                messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+                messagebox.showerror(
+                    title="Error", message="From Date cannot exceed To Date")
                 return
         else:
             coord_to_date_value = None
         try:
-            insert_data_coord(coord_school_no_value, coord_fac_no_value, coord_from_date_value, coord_to_date_value)
+            insert_data_coord(coord_school_no_value, coord_fac_no_value,
+                              coord_from_date_value, coord_to_date_value)
             print("coord inserted data")
             clear_entries_coord()
             print("coord cleared entries")
@@ -1652,7 +1707,8 @@ def update_record_coord():
     coord_to_date_value = coord_to_date_entry.get()
     if selected_item:
         if coord_from_date_value > coord_to_date_value:
-            messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+            messagebox.showerror(
+                title="Error", message="From Date cannot exceed To Date")
             return
         else:
             try:
@@ -1681,7 +1737,8 @@ def search_coord_records(keyword):
                     INNER JOIN FACULTY ON COORD.fac_no = FACULTY.fac_no
                     INNER JOIN SCHOOL ON COORD.school_no = SCHOOL.school_no 
                     WHERE coord_no LIKE %s OR SCHOOL.school_name LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR COORD.school_no LIKE %s OR COORD.fac_no LIKE %s OR COORD.from_date LIKE %s OR COORD.to_date LIKE %s"""
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%',
+                   '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     coord_treeview.delete(*coord_treeview.get_children())
     for row in rows:
@@ -1704,7 +1761,8 @@ def coord_write_to_csv():
             with open(csv_path, mode='w', newline='') as csv_file:
                 writer = csv.writer(csv_file)
 
-                writer.writerow(["Coordinator Number", "School Number", "Faculty Number", "School", "Full Name", "From Date", "To Date"])
+                writer.writerow(["Coordinator Number", "School Number",
+                                "Faculty Number", "School", "Full Name", "From Date", "To Date"])
 
                 global username, password, db
                 conn = db_conn(username, password, db)
@@ -1725,7 +1783,8 @@ def coord_write_to_csv():
                     writer.writerow(row)
                 conn.close()
 
-            messagebox.showinfo(title="Write Success", message=f"Data successfully written to {csv_path}")
+            messagebox.showinfo(
+                title="Write Success", message=f"Data successfully written to {csv_path}")
         except Exception as err:
             messagebox.showerror(title="Error", message=f"Error: {err}")
 
@@ -1744,7 +1803,8 @@ def coord_sort_by(search_column, opt_ord):
             search_column = "to_date"
         case _:
             # Handle invalid search column
-            messagebox.showerror(title="Error", message="Invalid search column")
+            messagebox.showerror(
+                title="Error", message="Invalid search column")
             return
     print(search_column)
     global username, password, db
@@ -1797,7 +1857,8 @@ def select_item_dept_fac(event):
 
 
 def insert_data_dept_fac(dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date):
-    print(dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date)
+    print(dept_fac_fac_no, dept_fac_school_no,
+          dept_fac_from_date, dept_fac_to_date)
     global username, password, db
     print("insert_data called db_conn")
     conn = db_conn(username, password, db)
@@ -1826,7 +1887,8 @@ def update_data_dept_fac(dept_fac_no, dept_fac_fac_no, dept_fac_school_no, dept_
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
     except mysql.connector.Error as err:
-        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
+        messagebox.showerror(
+            title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -1836,11 +1898,13 @@ def delete_data_dept_fac(dept_fac_no):
     conn = db_conn(username, password, db)
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM DEPT_FAC WHERE dept_fac_no=%s", (dept_fac_no,))
+        cursor.execute(
+            "DELETE FROM DEPT_FAC WHERE dept_fac_no=%s", (dept_fac_no,))
         conn.commit()
         messagebox.showinfo("Success", "Record deleted successfully!")
     except mysql.connector.IntegrityError:
-        messagebox.showerror(title="Error:", message="You cannot delete that has records dependent on it...\n")
+        messagebox.showerror(
+            title="Error:", message="You cannot delete that has records dependent on it...\n")
     finally:
         conn.close()
 
@@ -1848,7 +1912,8 @@ def delete_data_dept_fac(dept_fac_no):
 def delete_record_dept_fac():
     selected_item = dept_fac_treeview.selection()
     if selected_item:
-        delete_data_dept_fac(dept_fac_treeview.item(selected_item)['values'][0])
+        delete_data_dept_fac(dept_fac_treeview.item(
+            selected_item)['values'][0])
         clear_entries_dept_fac()
         populate_table_dept_fac()
     else:
@@ -1894,7 +1959,8 @@ def add_record_dept_fac():
     if dept_fac_fac_no_value and dept_fac_school_no and dept_fac_from_date_value:
         if dept_fac_to_date_value != "Enter To Date":
             if dept_fac_from_date_value > dept_fac_to_date_value:
-                messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+                messagebox.showerror(
+                    title="Error", message="From Date cannot exceed To Date")
                 return
         else:
             dept_fac_to_date_value = None
@@ -1918,7 +1984,8 @@ def update_record_dept_fac():
     dept_fac_to_date_value = dept_fac_to_date_entry.get()
     if selected_item:
         if dept_fac_from_date_value > dept_fac_to_date_value:
-            messagebox.showerror(title="Error", message="From Date cannot exceed To Date")
+            messagebox.showerror(
+                title="Error", message="From Date cannot exceed To Date")
             return
         else:
             try:
@@ -1949,7 +2016,8 @@ def search_dept_fac_records(keyword):
                     INNER JOIN FACULTY ON DEPT_FAC.fac_no = FACULTY.fac_no
                     INNER JOIN SCHOOL ON DEPT_FAC.school_no = SCHOOL.school_no
                     WHERE dept_fac_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR SCHOOL.school_name LIKE %s OR FACULTY.fac_no LIKE %s OR SCHOOL.school_no LIKE %s OR DEPT_FAC.from_date LIKE %s OR DEPT_FAC.to_date LIKE %s"""
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%',
+                   '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     dept_fac_treeview.delete(*dept_fac_treeview.get_children())
     for row in rows:
@@ -1996,7 +2064,8 @@ def dept_fac_write_to_csv():
                     writer.writerow(row)
                 conn.close()
 
-            messagebox.showinfo(title="Write Success", message=f"Data successfully written to {csv_path}")
+            messagebox.showinfo(
+                title="Write Success", message=f"Data successfully written to {csv_path}")
         except Exception as err:
             messagebox.showerror(title="Error", message=f"Error: {err}")
 
@@ -2015,7 +2084,8 @@ def dept_fac_sort_by(search_column, opt_ord):
             search_column = "to_date"
         case _:
             # Handle invalid search column
-            messagebox.showerror(title="Error", message="Invalid search column")
+            messagebox.showerror(
+                title="Error", message="Invalid search column")
             return
     print(search_column)
     global username, password, db
@@ -2051,8 +2121,6 @@ def dept_fac_sort_by(search_column, opt_ord):
 """ DB MANAGEMENT SECTION """
 
 
-
-
 db_display_label = tkb.Label(db_display_input_frame, text="Database Name")
 db_display_label.grid(row=0, column=0)
 
@@ -2066,15 +2134,16 @@ db_table_display_entry = tkb.Entry(db_tables_input_frame)
 db_table_display_entry.grid(row=1, column=0)
 
 # initial Treeview for displaying data for the db_tables_contents_treeview
-db_tables_contents_treeview = tkb.Treeview(db_tables_contents_frame,
-                                columns=("Table View",),
-                                show="headings", bootstyle="info")
+db_tables_contents_treeview = tkb.Treeview(db_tables_contents_treeview_frame,
+                                           columns=("Table View",),
+                                           show="headings", bootstyle="info")
 for col in db_tables_contents_treeview["columns"]:
     db_tables_contents_treeview.heading(col, text=col)
     db_tables_contents_treeview.column(col, anchor=tk.W, stretch=NO)
 db_tables_contents_treeview.grid(row=1, column=0)
 
 selected_db = None
+
 
 def add_db():
     print("called add_db")
@@ -2090,11 +2159,11 @@ def add_db():
 
         cursor.execute(add_db_sql)
 
-
         conn.commit()
         conn.close()
 
-        messagebox.showinfo(title="Database added", message=f"Successfully added database {db_value}")
+        messagebox.showinfo(title="Database added",
+                            message=f"Successfully added database {db_value}")
 
         display_db()
     except mysql.connector.Error as err:
@@ -2109,7 +2178,8 @@ def delete_db():
         db_value = db_display_entry.get()
 
         # Display a confirmation dialog
-        confirm = messagebox.askokcancel("Confirmation", f"Are you sure you want to delete the database '{db_value}'?")
+        confirm = messagebox.askokcancel(
+            "Confirmation", f"Are you sure you want to delete the database '{db_value}'?")
 
         if confirm:
             cursor = conn.cursor()
@@ -2144,7 +2214,8 @@ def show_rename_tb():
                 conn.close()
 
                 db_tables(selected_db)
-                messagebox.showinfo(title="Success", message=f"Successfully renamed table {curr_name_value} to {new_name_value}!")
+                messagebox.showinfo(
+                    title="Success", message=f"Successfully renamed table {curr_name_value} to {new_name_value}!")
             except mysql.connector.Error as err:
                 messagebox.showerror(title="Error", message=f"Error: {err}")
         # Close the window
@@ -2172,20 +2243,105 @@ def show_rename_tb():
     new_name_entry = tkb.Entry(rename_window)
     new_name_entry.grid(row=1, column=1)
 
-    confirm_button = tkb.Button(rename_window, text="OK", command=lambda: [confirmed.set(True), confirm_action()])
+    confirm_button = tkb.Button(rename_window, text="OK", command=lambda: [
+                                confirmed.set(True), confirm_action()])
     confirm_button.grid(row=2, column=0)
 
-    cancel_button = tkb.Button(rename_window, text="Cancel", command=rename_window.destroy)
+    cancel_button = tkb.Button(
+        rename_window, text="Cancel", command=rename_window.destroy)
     cancel_button.grid(row=2, column=1)
 
 
+def add_table():
+    def create_table():
+        try:
+            global username, password, selected_db
+            conn = db_conn(username, password, selected_db)
+
+            cursor = conn.cursor()
+            # Get table name from entry widget
+            table_name = table_name_entry.get()
+
+            # Get column names from entry widget
+            column_names = column_names_entry.get()
+
+            # Get data types from entry widget
+            data_types = data_types_entry.get()
+
+            # Split column names and data types by commas
+            columns = [f"{name.strip()} {dtype.strip()}" for name, dtype in zip(
+                column_names.split(','), data_types.split(','))]
+
+            # Construct the CREATE TABLE SQL statement
+            sql = f"CREATE TABLE {table_name} ({', '.join(columns)})"
+
+            cursor.execute(sql)
+
+            conn.commit()
+            conn.close()
+
+            db_tables(selected_db)
+
+            # Close the window
+            add_table_window.destroy()
+
+            # Show a message box indicating success
+            messagebox.showinfo(
+                "Success", f"Table '{table_name}' created successfully.")
+        except mysql.connector.Error as err:
+            messagebox.showerror(title="Error", message=f"Error: {err}")
+
+    add_table_window = tk.Toplevel(root)
+    add_table_window.title("Add Table")
+
+    # Label and entry widget for table name
+    table_name_label = tk.Label(add_table_window, text="Table Name:")
+    table_name_label.grid(row=0, column=0)
+    table_name_entry = tk.Entry(add_table_window)
+    table_name_entry.grid(row=0, column=1)
+
+    # Label and entry widget for column names
+    column_names_label = tk.Label(add_table_window, text="Column Names:")
+    column_names_label.grid(row=1, column=0)
+    column_names_entry = tk.Entry(add_table_window)
+    column_names_entry.grid(row=1, column=1)
+
+    # Label and entry widget for data types
+    data_types_label = tk.Label(add_table_window, text="Data Types:")
+    data_types_label.grid(row=2, column=0)
+    data_types_entry = tk.Entry(add_table_window)
+    data_types_entry.grid(row=2, column=1)
+
+    # Button to create the table
+    create_button = tk.Button(
+        add_table_window, text="Create Table", command=create_table)
+    create_button.grid(row=3, columnspan=2)
+
+
+def delete_table():
+    global selected_db
+    selected_item = db_tables_display_treeview.selection()
+    if selected_item:
+        values = db_tables_display_treeview.item(selected_item[0], 'values')
+        selected_tb = values[0]
+        confirmation = messagebox.askyesno(
+            "Confirm Deletion", f"Are you sure you want to delete the table '{selected_tb}'?")
+        if confirmation:
+            try:
+                global username, password
+                conn = db_conn(username, password, selected_db)
+                cursor = conn.cursor()
+                delete_tb_sql = f"DROP TABLE {selected_tb}"
+                cursor.execute(delete_tb_sql)
+                conn.commit()
+                conn.close()
+                messagebox.showinfo(
+                    "Deleted Table", f"Successfully deleted '{selected_tb}'")
+                db_tables(selected_db)
+            except mysql.connector.Error as err:
+                messagebox.showerror("Error", f"Error: {err}")
 
     
-
-    
-
-
-
 
 def display_db():
     global username, password, db
@@ -2198,14 +2354,6 @@ def display_db():
     for row in rows:
         db_display_treeview.insert("", "end", values=row)
     conn.close()
-
-
-
-
-
-
-
-
 
 
 def db_select(event):
@@ -2232,8 +2380,6 @@ def table_select(event):
         table_vals(selected_db, values[0])
 
 
-
-
 def db_tables(db_name):
     if db_name:
         try:
@@ -2244,7 +2390,8 @@ def db_tables(db_name):
             show_tables = """SHOW TABLES"""
             cursor.execute(show_tables)
             rows = cursor.fetchall()
-            db_tables_display_treeview.delete(*db_tables_display_treeview.get_children())
+            db_tables_display_treeview.delete(
+                *db_tables_display_treeview.get_children())
             for row in rows:
                 db_tables_display_treeview.insert("", "end", values=row)
             conn.close()
@@ -2267,25 +2414,28 @@ def table_vals(db_name, table_name):
             if db_tables_contents_treeview:
                 delete_treeview(db_tables_contents_treeview)
             # Create a new db_tables_contents_treeview widget with the desired configuration
-            db_tables_contents_treeview = tkb.Treeview(db_tables_contents_frame,
+            db_tables_contents_treeview = tkb.Treeview(db_tables_contents_treeview_frame,
                                                        columns=columns,
                                                        show="headings", bootstyle="info")
             for col in db_tables_contents_treeview["columns"]:
                 db_tables_contents_treeview.heading(col, text=col)
-                db_tables_contents_treeview.column(col, anchor=tk.W, stretch=NO)
+                db_tables_contents_treeview.column(
+                    col, anchor=tk.W, stretch=NO)
             db_tables_contents_treeview.grid(row=1, column=0)
 
             select_sql = f"SELECT * FROM {table_name}"
             cursor.execute(select_sql)
             rows = cursor.fetchall()
 
-            db_tables_contents_treeview.delete(*db_tables_contents_treeview.get_children())
+            db_tables_contents_treeview.delete(
+                *db_tables_contents_treeview.get_children())
             for row in rows:
                 db_tables_contents_treeview.insert("", "end", values=row)
 
             conn.close()
         except mysql.connector.Error as err:
             messagebox.showerror(title="Error", message=f"Error: {err}")
+
 
 def delete_treeview(treeview_table):
     treeview_table.destroy()
@@ -2298,14 +2448,20 @@ delete_db_button = tkb.Button(
     db_display_buttons_frame, text="Delete DB", command=delete_db)
 refresh_db_button = tkb.Button(
     db_display_buttons_frame, text="Refresh", command=display_db)
-rename_table_button = tkb.Button(db_tables_display_buttons_frame, text="Rename", command=show_rename_tb)
-refresh_tb_button = tkb.Button(db_tables_display_buttons_frame, text="Refresh", command=db_tables)
+rename_table_button = tkb.Button(
+    db_tables_display_buttons_frame, text="Rename", command=show_rename_tb)
+refresh_tb_button = tkb.Button(
+    db_tables_display_buttons_frame, text="Refresh", command=db_tables)
+add_table_button = tkb.Button(db_tables_contents_buttons_frame, text="Add Table", command=add_table)
+delete_table_button = tkb.Button(db_tables_contents_buttons_frame, text="Delete Table", command=delete_table)
 
 add_db_button.grid(row=2, column=0)
 delete_db_button.grid(row=2, column=1)
 refresh_db_button.grid(row=2, column=2)
 rename_table_button.grid(row=2, column=0)
 refresh_tb_button.grid(row=2, column=1)
+add_table_button.grid(row=0, column=0)
+delete_table_button.grid(row=0, column=1)
 
 # Adjusting weights for resizing behavior
 root.columnconfigure(1, weight=3)  # Give more weight to the table frame
@@ -2317,7 +2473,8 @@ add_placeholder_to(search_entry, "Search for Records")
 search_image = Image.open("search_icon.png")
 search_image = search_image.resize((12, 12))
 search_icon = ImageTk.PhotoImage(search_image)
-search_button = tkb.Button(faculty_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1)) #revised format
+search_button = tkb.Button(faculty_options_frame, text="Search", image=search_icon,
+                           compound=tk.LEFT, command=search_button_click, padding=(1, 1))  # revised format
 search_entry.grid(row=0, column=0, padx=(0, 10), sticky=tk.W)
 search_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -2327,7 +2484,8 @@ add_placeholder_to(search_entry_school, "Search for Records")
 search_image_school = Image.open("search_icon.png")
 search_image_school = search_image_school.resize((12, 12))
 search_icon_school = ImageTk.PhotoImage(search_image_school)
-search_school_button = tkb.Button(school_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_school_button_click, padding=(1, 1))
+search_school_button = tkb.Button(school_options_frame, text="Search", image=search_icon,
+                                  compound=tk.LEFT, command=search_school_button_click, padding=(1, 1))
 search_entry_school.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_school_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -2337,7 +2495,8 @@ add_placeholder_to(search_entry_payroll, "Search for Records")
 search_image_payroll = Image.open("search_icon.png")
 search_image_payroll = search_image_payroll.resize((12, 12))
 search_icon_payroll = ImageTk.PhotoImage(search_image_payroll)
-search_payroll_button = tkb.Button(payroll_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_payroll_button_click, padding=(1, 1))
+search_payroll_button = tkb.Button(payroll_options_frame, text="Search", image=search_icon,
+                                   compound=tk.LEFT, command=search_payroll_button_click, padding=(1, 1))
 search_entry_payroll.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_payroll_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -2347,7 +2506,8 @@ add_placeholder_to(search_entry_positions, "Search for Records")
 search_image_positions = Image.open("search_icon.png")
 search_image_positions = search_image_positions.resize((12, 12))
 search_icon_positions = ImageTk.PhotoImage(search_image_positions)
-search_positions_button = tkb.Button(positions_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_positions_button_click, padding=(1, 1))
+search_positions_button = tkb.Button(positions_options_frame, text="Search", image=search_icon,
+                                     compound=tk.LEFT, command=search_positions_button_click, padding=(1, 1))
 search_entry_positions.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_positions_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -2357,7 +2517,8 @@ add_placeholder_to(search_entry_coord, "Search for Records")
 search_image_coord = Image.open("search_icon.png")
 search_image_coord = search_image_coord.resize((12, 12))
 search_icon_coord = ImageTk.PhotoImage(search_image_coord)
-search_coord_button = tkb.Button(coord_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_coord_button_click, padding=(1, 1))
+search_coord_button = tkb.Button(coord_options_frame, text="Search", image=search_icon,
+                                 compound=tk.LEFT, command=search_coord_button_click, padding=(1, 1))
 search_entry_coord.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_coord_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -2367,24 +2528,28 @@ add_placeholder_to(search_entry_dept_fac, "Search for Records")
 search_image_dept_fac = Image.open("search_icon.png")
 search_image_dept_fac = search_image_dept_fac.resize((12, 12))
 search_icon_dept_fac = ImageTk.PhotoImage(search_image_dept_fac)
-search_dept_fac_button = tkb.Button(dept_fac_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_dept_fac_button_click, padding=(1, 1))
+search_dept_fac_button = tkb.Button(dept_fac_options_frame, text="Search", image=search_icon,
+                                    compound=tk.LEFT, command=search_dept_fac_button_click, padding=(1, 1))
 search_entry_dept_fac.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_dept_fac_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
 # Sort Section
 # Faculty Sort
 faculty_sort_entry = tkb.Combobox(faculty_options_frame, width=75)
-faculty_sort_entry['values'] = ('Faculty Number', "Last Name", "First Name", "Birth Date", "Hire Date")
+faculty_sort_entry['values'] = (
+    'Faculty Number', "Last Name", "First Name", "Birth Date", "Hire Date")
 faculty_sort_entry.set("Sort by: ")
 faculty_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
-faculty_sort_desc_var = tk.BooleanVar()  # Variable to store the state of the Checkbutton
+# Variable to store the state of the Checkbutton
+faculty_sort_desc_var = tk.BooleanVar()
 faculty_sort_desc = tkb.Checkbutton(faculty_options_frame, text="Desc", variable=faculty_sort_desc_var,
                                     bootstyle="info-round-toggle")
 faculty_sort_desc.grid(row=1, column=1, padx=(0, 10), sticky=tk.E)
 
 faculty_sort_button = tkb.Button(faculty_options_frame, text="Go",
-                                 command=lambda: faculty_sort_by(faculty_sort_entry.get(), faculty_sort_desc_var.get()),
+                                 command=lambda: faculty_sort_by(
+                                     faculty_sort_entry.get(), faculty_sort_desc_var.get()),
                                  padding=(1, 1))
 faculty_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
@@ -2394,7 +2559,8 @@ school_sort_entry['values'] = ("School Number", "School Name")
 school_sort_entry.set("Sort by: ")
 school_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
-school_sort_desc_var = tk.BooleanVar()  # Variable to store the state of the Checkbutton
+# Variable to store the state of the Checkbutton
+school_sort_desc_var = tk.BooleanVar()
 school_sort_desc = tkb.Checkbutton(school_options_frame, text="Desc", variable=school_sort_desc_var,
                                    bootstyle="info-round-toggle")
 school_sort_desc.grid(row=1, column=1, padx=(0, 10), sticky=tk.E)
@@ -2405,11 +2571,13 @@ school_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
 # Payroll Sort
 payroll_sort_entry = tkb.Combobox(payroll_options_frame, width=75)
-payroll_sort_entry['values'] = ("Payroll Number", 'Faculty Number', "Pay Amount", "From Date", "To Date")
+payroll_sort_entry['values'] = (
+    "Payroll Number", 'Faculty Number', "Pay Amount", "From Date", "To Date")
 payroll_sort_entry.set("Sort by: ")
 payroll_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
-payroll_sort_desc_var = tk.BooleanVar()  # Variable to store the state of the Checkbutton
+# Variable to store the state of the Checkbutton
+payroll_sort_desc_var = tk.BooleanVar()
 payroll_sort_desc = tkb.Checkbutton(payroll_options_frame, text="Desc", variable=payroll_sort_desc_var,
                                     bootstyle="info-round-toggle")
 payroll_sort_desc.grid(row=1, column=1, padx=(0, 10), sticky=tk.E)
@@ -2420,11 +2588,13 @@ payroll_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
 # Positions Sort
 positions_sort_entry = tkb.Combobox(positions_options_frame, width=75)
-positions_sort_entry['values'] = ("Position Number", 'Faculty Number', "Position", "From Date", "To Date")
+positions_sort_entry['values'] = (
+    "Position Number", 'Faculty Number', "Position", "From Date", "To Date")
 positions_sort_entry.set("Sort by: ")
 positions_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
-positions_sort_desc_var = tk.BooleanVar()  # Variable to store the state of the Checkbutton
+# Variable to store the state of the Checkbutton
+positions_sort_desc_var = tk.BooleanVar()
 positions_sort_desc = tkb.Checkbutton(positions_options_frame, text="Desc", variable=positions_sort_desc_var,
                                       bootstyle="info-round-toggle")
 positions_sort_desc.grid(row=1, column=1, padx=(0, 10), sticky=tk.E)
@@ -2435,11 +2605,13 @@ positions_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
 # Coord Sort
 coord_sort_entry = tkb.Combobox(coord_options_frame, width=75)
-coord_sort_entry['values'] = ("Coordinator Number", "School Number", 'Faculty Number', "From Date", "To Date")
+coord_sort_entry['values'] = (
+    "Coordinator Number", "School Number", 'Faculty Number', "From Date", "To Date")
 coord_sort_entry.set("Sort by: ")
 coord_sort_entry.grid(row=1, column=0, padx=(0, 10), sticky=tk.W)
 
-coord_sort_desc_var = tk.BooleanVar()  # Variable to store the state of the Checkbutton
+# Variable to store the state of the Checkbutton
+coord_sort_desc_var = tk.BooleanVar()
 coord_sort_desc = tkb.Checkbutton(coord_options_frame, text="Desc", variable=coord_sort_desc_var,
                                   bootstyle="info-round-toggle")
 coord_sort_desc.grid(row=1, column=1, padx=(0, 10), sticky=tk.E)
@@ -2467,75 +2639,105 @@ dept_fac_sort_button = tkb.Button(
 dept_fac_sort_button.grid(row=1, column=2, padx=(0, 10), sticky=tk.E)
 
 # School Tab Content
-school_info_header = tkb.Label(school_frame, text="Simple CRUD", font=("Times New Roman", 25, "bold", "underline"))
-school_info_header.grid(row=0, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E))
+school_info_header = tkb.Label(school_frame, text="Simple CRUD", font=(
+    "Times New Roman", 25, "bold", "underline"))
+school_info_header.grid(row=0, column=0, pady=(0, 10),
+                        padx=10, sticky=(tk.W, tk.E))
 
 # School CRUD section with entries and labels below them
-school_crud_info_label = tkb.LabelFrame(school_frame, text="SCHOOL INFORMATION", borderwidth=2)
-school_crud_info_label.grid(row=1, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
+school_crud_info_label = tkb.LabelFrame(
+    school_frame, text="SCHOOL INFORMATION", borderwidth=2)
+school_crud_info_label.grid(row=1, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
 
 # CRUD section with entries and labels below them
 school_crud_section = tkb.Frame(school_crud_info_label, padding=10)
-school_crud_section.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+school_crud_section.grid(row=0, column=0, padx=10,
+                         pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # CRUD Information Section
-crud_info_header = tkb.Label(faculty_frame, text="Simple CRUD", font=("Times New Roman", 25, "bold", "underline"))
-crud_info_header.grid(row=0, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E))
+crud_info_header = tkb.Label(faculty_frame, text="Simple CRUD", font=(
+    "Times New Roman", 25, "bold", "underline"))
+crud_info_header.grid(row=0, column=0, pady=(0, 10),
+                      padx=10, sticky=(tk.W, tk.E))
 
 # CRUD section with entries and labels below them
-crud_info_label = tkb.LabelFrame(faculty_frame, text="FACULTY INFORMATION", borderwidth=2, bootstyle="info")
-crud_info_label.grid(row=1, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
+crud_info_label = tkb.LabelFrame(
+    faculty_frame, text="FACULTY INFORMATION", borderwidth=2, bootstyle="info")
+crud_info_label.grid(row=1, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
 
 # CRUD section with entries and labels below them
 crud_section = tkb.Frame(crud_info_label, padding=10)
-crud_section.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+crud_section.grid(row=0, column=0, padx=10, pady=10,
+                  sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Payroll Tab Content (replicated from Faculty Tab)
-payroll_info_header = tkb.Label(payroll_frame, text="Simple CRUD", font=("Times New Roman", 25, "bold", "underline"))
-payroll_info_header.grid(row=0, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E))
+payroll_info_header = tkb.Label(payroll_frame, text="Simple CRUD", font=(
+    "Times New Roman", 25, "bold", "underline"))
+payroll_info_header.grid(row=0, column=0, pady=(0, 10),
+                         padx=10, sticky=(tk.W, tk.E))
 
-payroll_crud_info_label = tkb.LabelFrame(payroll_frame, text="PAYROLL INFORMATION", borderwidth=2)
-payroll_crud_info_label.grid(row=1, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
+payroll_crud_info_label = tkb.LabelFrame(
+    payroll_frame, text="PAYROLL INFORMATION", borderwidth=2)
+payroll_crud_info_label.grid(row=1, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
 
 payroll_crud_section = tkb.Frame(payroll_crud_info_label, padding=10)
-payroll_crud_section.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+payroll_crud_section.grid(row=0, column=0, padx=10,
+                          pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Positions Tab Content (replicated from Faculty Tab)
 positions_info_header = tkb.Label(positions_frame, text="Simple CRUD",
                                   font=("Times New Roman", 25, "bold", "underline"))
-positions_info_header.grid(row=0, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E))
+positions_info_header.grid(row=0, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E))
 
-positions_crud_info_label = tkb.LabelFrame(positions_frame, text="POSITIONS INFORMATION", borderwidth=2)
-positions_crud_info_label.grid(row=1, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
+positions_crud_info_label = tkb.LabelFrame(
+    positions_frame, text="POSITIONS INFORMATION", borderwidth=2)
+positions_crud_info_label.grid(row=1, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
 
 positions_crud_section = tkb.Frame(positions_crud_info_label, padding=10)
-positions_crud_section.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+positions_crud_section.grid(
+    row=0, column=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Coordinators Tab Content (replicated from Faculty Tab)
-coord_info_header = tkb.Label(coord_frame, text="Simple CRUD", font=("Times New Roman", 25, "bold", "underline"))
-coord_info_header.grid(row=0, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E))
+coord_info_header = tkb.Label(coord_frame, text="Simple CRUD", font=(
+    "Times New Roman", 25, "bold", "underline"))
+coord_info_header.grid(row=0, column=0, pady=(0, 10),
+                       padx=10, sticky=(tk.W, tk.E))
 
-coord_crud_info_label = tkb.LabelFrame(coord_frame, text="COORD INFORMATION", borderwidth=2)
-coord_crud_info_label.grid(row=1, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
+coord_crud_info_label = tkb.LabelFrame(
+    coord_frame, text="COORD INFORMATION", borderwidth=2)
+coord_crud_info_label.grid(row=1, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
 
 coord_crud_section = tkb.Frame(coord_crud_info_label, padding=10)
-coord_crud_section.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+coord_crud_section.grid(row=0, column=0, padx=10, pady=10,
+                        sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Department Faculties Tab Content (replicated from Faculty Tab)
-dept_fac_info_header = tkb.Label(dept_fac_frame, text="Simple CRUD", font=("Times New Roman", 25, "bold", "underline"))
-dept_fac_info_header.grid(row=0, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E))
+dept_fac_info_header = tkb.Label(dept_fac_frame, text="Simple CRUD", font=(
+    "Times New Roman", 25, "bold", "underline"))
+dept_fac_info_header.grid(row=0, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E))
 
-dept_fac_crud_info_label = tkb.LabelFrame(dept_fac_frame, text="DEPT_FAC INFORMATION", borderwidth=2)
-dept_fac_crud_info_label.grid(row=1, column=0, pady=(0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
+dept_fac_crud_info_label = tkb.LabelFrame(
+    dept_fac_frame, text="DEPT_FAC INFORMATION", borderwidth=2)
+dept_fac_crud_info_label.grid(row=1, column=0, pady=(
+    0, 10), padx=10, sticky=(tk.W, tk.E, tk.N, tk.S))
 
 dept_fac_crud_section = tkb.Frame(dept_fac_crud_info_label, padding=10)
-dept_fac_crud_section.grid(row=0, column=0, padx=10, pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
+dept_fac_crud_section.grid(row=0, column=0, padx=10,
+                           pady=10, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Labels and entries for School
 school_labels = ["School Number", "School Name"]
 school_entries = []
 for i, label_text in enumerate(school_labels):
-    label = tkb.Label(school_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
+    label = tkb.Label(school_crud_section,
+                      text=f"{label_text}:", font=('Helvetica', 10))
     label.grid(row=2 * i, column=0, padx=5, pady=2, sticky=(tk.W))
     entry = tkb.Entry(school_crud_section, width=50)
     entry.grid(row=2 * i + 1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
@@ -2547,10 +2749,12 @@ add_placeholder_to(school_name_entry, "Enter School Name")
 
 
 # Labels and entries for Faculty
-labels = ["Faculty Number", "Last Name", "First Name", "Birth Date", "Hire Date"]
+labels = ["Faculty Number", "Last Name",
+          "First Name", "Birth Date", "Hire Date"]
 entries = []
 for i, label_text in enumerate(labels):
-    label = tkb.Label(crud_section, text=f"{label_text}:", font=('Helvetica', 10))
+    label = tkb.Label(
+        crud_section, text=f"{label_text}:", font=('Helvetica', 10))
     label.grid(row=2 * i, column=0, padx=5, pady=2, sticky=(tk.W))
     entry = tkb.Entry(crud_section, width=50)
     entry.grid(row=2 * i + 1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
@@ -2564,10 +2768,12 @@ add_placeholder_to(birth_date_entry, "YYYY-MM-DD")
 add_placeholder_to(hire_date_entry, "YYYY-MM-DD")
 
 # Labels and entries for Payroll
-payroll_labels = ["Payroll Number", "Faculty Number", "Pay Amount", "From Date", "To Date"]
+payroll_labels = ["Payroll Number", "Faculty Number",
+                  "Pay Amount", "From Date", "To Date"]
 payroll_entries = []
 for i, label_text in enumerate(payroll_labels):
-    label = tkb.Label(payroll_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
+    label = tkb.Label(payroll_crud_section,
+                      text=f"{label_text}:", font=('Helvetica', 10))
     label.grid(row=2 * i, column=0, padx=5, pady=2, sticky=(tk.W))
     entry = tkb.Entry(payroll_crud_section, width=50)
     entry.grid(row=2 * i + 1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
@@ -2580,10 +2786,12 @@ add_placeholder_to(payroll_from_date_entry, "YYYY-MM-DD")
 add_placeholder_to(payroll_to_date_entry, "YYYY-MM-DD")
 
 # labels and entries for Positions
-positions_labels = ["Position Number", "Faculty Number", "Position", "From Date", "To Date"]
+positions_labels = ["Position Number", "Faculty Number",
+                    "Position", "From Date", "To Date"]
 positions_entries = []
 for i, label_text in enumerate(positions_labels):
-    label = tkb.Label(positions_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
+    label = tkb.Label(positions_crud_section,
+                      text=f"{label_text}:", font=('Helvetica', 10))
     label.grid(row=2 * i, column=0, padx=5, pady=2, sticky=(tk.W))
     entry = tkb.Entry(positions_crud_section, width=50)
     entry.grid(row=2 * i + 1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
@@ -2596,10 +2804,12 @@ add_placeholder_to(positions_from_date_entry, "YYYY-MM-DD")
 add_placeholder_to(positions_to_date_entry, "YYYY-MM-DD")
 
 # labels and entries for Coordinators
-coord_labels = ["Coordinator Number", "School Number", "Faculty Number", "From Date", "To Date"]
+coord_labels = ["Coordinator Number", "School Number",
+                "Faculty Number", "From Date", "To Date"]
 coord_entries = []
 for i, label_text in enumerate(coord_labels):
-    label = tkb.Label(coord_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
+    label = tkb.Label(coord_crud_section,
+                      text=f"{label_text}:", font=('Helvetica', 10))
     label.grid(row=2 * i, column=0, padx=5, pady=2, sticky=(tk.W))
     entry = tkb.Entry(coord_crud_section, width=50)
     entry.grid(row=2 * i + 1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
@@ -2612,10 +2822,12 @@ add_placeholder_to(coord_from_date_entry, "YYYY-MM-DD")
 add_placeholder_to(coord_to_date_entry, "YYYY-MM-DD")
 
 # Labels and entries for Faculty
-dept_fac_labels = ["Department Faculty Number", "Faculty Number", "School Number", "From Date", "To Date"]
+dept_fac_labels = ["Department Faculty Number",
+                   "Faculty Number", "School Number", "From Date", "To Date"]
 dept_fac_entries = []
 for i, label_text in enumerate(dept_fac_labels):
-    label = tkb.Label(dept_fac_crud_section, text=f"{label_text}:", font=('Helvetica', 10))
+    label = tkb.Label(dept_fac_crud_section,
+                      text=f"{label_text}:", font=('Helvetica', 10))
     label.grid(row=2 * i, column=0, padx=5, pady=2, sticky=(tk.W))
     entry = tkb.Entry(dept_fac_crud_section, width=50)
     entry.grid(row=2 * i + 1, column=0, padx=5, pady=2, sticky=(tk.W, tk.E))
@@ -2656,30 +2868,40 @@ save_db_image = save_db_image.resize((20, 20))
 save_db_icon = ImageTk.PhotoImage(save_db_image)
 
 # Buttons for CRUD operations
-button_icons = [add_icon, update_icon, delete_icon, write_csv_icon, save_db_icon]
+button_icons = [add_icon, update_icon,
+                delete_icon, write_csv_icon, save_db_icon]
 button_texts = ["Add", "Update", "Delete", "Write CSV", "Save DB"]
 
-school_button_icons = [add_icon, update_icon, delete_icon, write_csv_icon, save_db_icon]
+school_button_icons = [add_icon, update_icon,
+                       delete_icon, write_csv_icon, save_db_icon]
 school_button_texts = ["Add", "Update", "Delete", "Write CSV", "Save DB"]
 
-payroll_button_icons = [add_icon, update_icon, delete_icon, write_csv_icon, save_db_icon]
+payroll_button_icons = [add_icon, update_icon,
+                        delete_icon, write_csv_icon, save_db_icon]
 payroll_button_texts = ["Add", "Update", "Delete", "Write CSV", "Save DB"]
 
-positions_button_icons = [add_icon, update_icon, delete_icon, write_csv_icon, save_db_icon]
+positions_button_icons = [add_icon, update_icon,
+                          delete_icon, write_csv_icon, save_db_icon]
 positions_button_texts = ["Add", "Update", "Delete", "Write CSV", "Save DB"]
 
-coord_button_icons = [add_icon, update_icon, delete_icon, write_csv_icon, save_db_icon]
+coord_button_icons = [add_icon, update_icon,
+                      delete_icon, write_csv_icon, save_db_icon]
 coord_button_texts = ["Add", "Update", "Delete", "Write CSV", "Save DB"]
 
-dept_fac_button_icons = [add_icon, update_icon, delete_icon, write_csv_icon, save_db_icon]
+dept_fac_button_icons = [add_icon, update_icon,
+                         delete_icon, write_csv_icon, save_db_icon]
 dept_fac_button_texts = ["Add", "Update", "Delete", "Write CSV", "Save DB"]
 
-commands = [add_record, update_record, delete_record, faculty_write_to_csv, backup_db]
-school_commands = [add_record_school, update_record_school, delete_record_school, school_write_to_csv, backup_db]
-payroll_commands = [add_record_payroll, update_record_payroll, delete_record_payroll, payroll_write_to_csv, backup_db]
+commands = [add_record, update_record,
+            delete_record, faculty_write_to_csv, backup_db]
+school_commands = [add_record_school, update_record_school,
+                   delete_record_school, school_write_to_csv, backup_db]
+payroll_commands = [add_record_payroll, update_record_payroll,
+                    delete_record_payroll, payroll_write_to_csv, backup_db]
 positions_commands = [add_record_positions, update_record_positions, delete_record_positions, positions_write_to_csv,
                       backup_db]
-coord_commands = [add_record_coord, update_record_coord, delete_record_coord, coord_write_to_csv, backup_db]
+coord_commands = [add_record_coord, update_record_coord,
+                  delete_record_coord, coord_write_to_csv, backup_db]
 dept_fac_commands = [add_record_dept_fac, update_record_dept_fac, delete_record_dept_fac, dept_fac_write_to_csv,
                      backup_db]
 
@@ -2693,42 +2915,50 @@ payroll_buttons_frame = tkb.Frame(payroll_crud_info_label, padding=10)
 payroll_buttons_frame.grid(row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
 
 positions_buttons_frame = tkb.Frame(positions_crud_info_label, padding=10)
-positions_buttons_frame.grid(row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
+positions_buttons_frame.grid(
+    row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
 
 coord_buttons_frame = tkb.Frame(coord_crud_info_label, padding=10)
 coord_buttons_frame.grid(row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
 
 dept_fac_buttons_frame = tkb.Frame(dept_fac_crud_info_label, padding=10)
-dept_fac_buttons_frame.grid(row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
+dept_fac_buttons_frame.grid(
+    row=12, column=0, pady=(10, 0), sticky=(tk.W, tk.E))
 
 for i, (text, icon, cmd) in enumerate(zip(button_texts, button_icons, commands)):
     # Ensure that the image object is retained to prevent garbage collection
-    button = tkb.Button(buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(buttons_frame, text=text, image=icon,
+                        compound=tk.LEFT, command=cmd)
     button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(school_button_texts, school_button_icons, school_commands)):
-    button = tkb.Button(school_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(school_buttons_frame, text=text,
+                        image=icon, compound=tk.LEFT, command=cmd)
     button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(payroll_button_texts, payroll_button_icons, payroll_commands)):
-    button = tkb.Button(payroll_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(payroll_buttons_frame, text=text,
+                        image=icon, compound=tk.LEFT, command=cmd)
     button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(positions_button_texts, positions_button_icons, positions_commands)):
-    button = tkb.Button(positions_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(positions_buttons_frame, text=text,
+                        image=icon, compound=tk.LEFT, command=cmd)
     button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(coord_button_texts, coord_button_icons, coord_commands)):
-    button = tkb.Button(coord_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(coord_buttons_frame, text=text,
+                        image=icon, compound=tk.LEFT, command=cmd)
     button.image = icon
     button.grid(row=0, column=i, padx=5)
 
 for i, (text, icon, cmd) in enumerate(zip(dept_fac_button_texts, dept_fac_button_icons, dept_fac_commands)):
-    button = tkb.Button(dept_fac_buttons_frame, text=text, image=icon, compound=tk.LEFT, command=cmd)
+    button = tkb.Button(dept_fac_buttons_frame, text=text,
+                        image=icon, compound=tk.LEFT, command=cmd)
     button.image = icon
     button.grid(row=0, column=i, padx=5)
 
@@ -2752,7 +2982,8 @@ school_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Treeview for displaying data for Payroll
 payroll_treeview = tkb.Treeview(payroll_table_frame,
-                                columns=("Payroll Number", "Faculty Number", "Full Name", "Pay Amount", "From Date", "To Date"),
+                                columns=("Payroll Number", "Faculty Number",
+                                         "Full Name", "Pay Amount", "From Date", "To Date"),
                                 show="headings", bootstyle="info")
 for col in payroll_treeview["columns"]:
     payroll_treeview.heading(col, text=col)
@@ -2763,7 +2994,8 @@ payroll_treeview.grid(row=2, column=0)
 
 
 positions_treeview = tkb.Treeview(positions_table_frame,
-                                  columns=("Position Number", "Faculty Number", "Full Name", "Position", "From Date", "To Date"),
+                                  columns=("Position Number", "Faculty Number",
+                                           "Full Name", "Position", "From Date", "To Date"),
                                   show="headings", bootstyle="info")
 for col in positions_treeview["columns"]:
     positions_treeview.heading(col, text=col)
@@ -2773,7 +3005,8 @@ positions_treeview.column("Faculty Number", width=40)
 positions_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 coord_treeview = tkb.Treeview(coord_table_frame,
-                              columns=("Coordinator Number", "School Number", "Faculty Number", "School", "Full Name", "From Date", "To Date"),
+                              columns=("Coordinator Number", "School Number", "Faculty Number",
+                                       "School", "Full Name", "From Date", "To Date"),
                               show="headings", bootstyle="info")
 for col in coord_treeview["columns"]:
     coord_treeview.heading(col, text=col)
@@ -2786,8 +3019,8 @@ coord_treeview.column("Faculty Number", width=40)
 coord_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 dept_fac_treeview = tkb.Treeview(dept_fac_table_frame, columns=(
-"Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date", "To Date"), show="headings",
-                                 bootstyle="info")
+    "Department Faculty Number", "Faculty Number", "School Number", "School", "Full Name", "From Date", "To Date"), show="headings",
+    bootstyle="info")
 for col in dept_fac_treeview["columns"]:
     dept_fac_treeview.heading(col, text=col)
     dept_fac_treeview.column(col, anchor=tk.W, width=150)
@@ -2800,8 +3033,8 @@ dept_fac_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
 # Treeview for displaying data for db_display
 db_display_treeview = tkb.Treeview(db_display_treeview_frame,
-                                columns=("Database Name",),
-                                show="headings", bootstyle="info")
+                                   columns=("Database Name",),
+                                   show="headings", bootstyle="info")
 for col in db_display_treeview["columns"]:
     db_display_treeview.heading(col, text=col)
     db_display_treeview.column(col, anchor=tk.W, stretch=NO)
@@ -2810,16 +3043,13 @@ db_display_treeview.configure(height=24)
 
 # Treeview for displaying data for the db_tables_display_frame
 db_tables_display_treeview = tkb.Treeview(db_tables_treeview_frame,
-                                columns=("Table Name",),
-                                show="headings", bootstyle="info")
+                                          columns=("Table Name",),
+                                          show="headings", bootstyle="info")
 for col in db_tables_display_treeview["columns"]:
     db_tables_display_treeview.heading(col, text=col)
     db_tables_display_treeview.column(col, anchor=tk.W, stretch=NO)
 db_tables_display_treeview.grid(row=3, column=0)
 db_tables_display_treeview.configure(height=24)
-
-
-
 
 
 # Bind select event
@@ -2831,9 +3061,6 @@ coord_treeview.bind('<<TreeviewSelect>>', select_item_coord)
 dept_fac_treeview.bind('<<TreeviewSelect>>', select_item_dept_fac)
 db_display_treeview.bind('<<TreeviewSelect>>', db_select)
 db_tables_display_treeview.bind('<<TreeviewSelect>>', table_select)
-
-
-
 
 
 crud_notebook.bind("<<NotebookTabChanged>>", on_tab_change)
