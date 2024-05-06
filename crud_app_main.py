@@ -1062,11 +1062,21 @@ def populate_table_payroll():
 
 
 def search_payroll_records(keyword):
+    print("called search_payroll")
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM PAYROLL WHERE payroll_no LIKE %s OR fac_no LIKE %s OR fac_pay LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    query = """         SELECT
+                        payroll_no,
+                        PAYROLL.fac_no,
+                        CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname),
+                        fac_pay,
+                        from_date, 
+                        to_date 
+                        FROM PAYROLL 
+                        INNER JOIN FACULTY ON PAYROLL.fac_no = FACULTY.fac_no 
+                        WHERE payroll_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR FACULTY.fac_no LIKE %s OR PAYROLL.fac_pay LIKE %s OR PAYROLL.from_date LIKE %s OR PAYROLL.to_date LIKE %s"""
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     payroll_treeview.delete(*payroll_treeview.get_children())
     for row in rows:
@@ -1318,8 +1328,17 @@ def search_positions_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM POSITIONS WHERE positions_no LIKE %s OR fac_no LIKE %s OR pos LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    query = """     SELECT
+                    positions_no, 
+                    POSITIONS.fac_no, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name, 
+                    POSITIONS.pos, 
+                    POSITIONS.from_date, 
+                    POSITIONS.to_date 
+                    FROM POSITIONS 
+                    INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no 
+                    WHERE positions_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR POSITIONS.fac_no LIKE %s OR pos LIKE %s OR POSITIONS.from_date LIKE %s OR POSITIONS.to_date LIKE %s"""
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     positions_treeview.delete(*positions_treeview.get_children())
     for row in rows:
@@ -1570,8 +1589,18 @@ def search_coord_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM COORD WHERE coord_no LIKE %s OR school_no LIKE %s OR fac_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    query = """     SELECT 
+                    COORD.coord_no, 
+                    COORD.school_no, 
+                    COORD.fac_no, 
+                    SCHOOL.school_name, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname), 
+                    COORD.from_date, COORD.to_date 
+                    FROM COORD
+                    INNER JOIN FACULTY ON COORD.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON COORD.school_no = SCHOOL.school_no 
+                    WHERE coord_no LIKE %s OR SCHOOL.school_name LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR COORD.school_no LIKE %s OR COORD.fac_no LIKE %s OR COORD.from_date LIKE %s OR COORD.to_date LIKE %s"""
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     coord_treeview.delete(*coord_treeview.get_children())
     for row in rows:
@@ -1825,8 +1854,19 @@ def search_dept_fac_records(keyword):
     global username, password, db
     conn = db_conn(username, password, db)
     cursor = conn.cursor()
-    query = "SELECT * FROM DEPT_FAC WHERE dept_fac_no LIKE %s OR fac_no LIKE %s OR school_no LIKE %s OR from_date LIKE %s OR to_date LIKE %s"
-    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
+    query = """SELECT
+                    DEPT_FAC.dept_fac_no,
+                    DEPT_FAC.fac_no,
+                    DEPT_FAC.school_no,
+                    SCHOOL.school_name,
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name,
+                    DEPT_FAC.from_date,
+                    DEPT_FAC.to_date
+                    FROM DEPT_FAC
+                    INNER JOIN FACULTY ON DEPT_FAC.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON DEPT_FAC.school_no = SCHOOL.school_no
+                    WHERE dept_fac_no LIKE %s OR CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) LIKE %s OR SCHOOL.school_name LIKE %s OR FACULTY.fac_no LIKE %s OR SCHOOL.school_no LIKE %s OR DEPT_FAC.from_date LIKE %s OR DEPT_FAC.to_date LIKE %s"""
+    cursor.execute(query, ('%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%', '%' + keyword + '%'))
     rows = cursor.fetchall()
     dept_fac_treeview.delete(*dept_fac_treeview.get_children())
     for row in rows:
@@ -1945,7 +1985,7 @@ add_placeholder_to(search_entry_school, "Search for Records")
 search_image_school = Image.open("search_icon.png")
 search_image_school = search_image_school.resize((12, 12))
 search_icon_school = ImageTk.PhotoImage(search_image_school)
-search_school_button = tkb.Button(school_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
+search_school_button = tkb.Button(school_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_school_button_click, padding=(1, 1))
 search_entry_school.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_school_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1955,7 +1995,7 @@ add_placeholder_to(search_entry_payroll, "Search for Records")
 search_image_payroll = Image.open("search_icon.png")
 search_image_payroll = search_image_payroll.resize((12, 12))
 search_icon_payroll = ImageTk.PhotoImage(search_image_payroll)
-search_payroll_button = tkb.Button(payroll_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
+search_payroll_button = tkb.Button(payroll_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_payroll_button_click, padding=(1, 1))
 search_entry_payroll.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_payroll_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1965,7 +2005,7 @@ add_placeholder_to(search_entry_positions, "Search for Records")
 search_image_positions = Image.open("search_icon.png")
 search_image_positions = search_image_positions.resize((12, 12))
 search_icon_positions = ImageTk.PhotoImage(search_image_positions)
-search_positions_button = tkb.Button(positions_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
+search_positions_button = tkb.Button(positions_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_positions_button_click, padding=(1, 1))
 search_entry_positions.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_positions_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1975,7 +2015,7 @@ add_placeholder_to(search_entry_coord, "Search for Records")
 search_image_coord = Image.open("search_icon.png")
 search_image_coord = search_image_coord.resize((12, 12))
 search_icon_coord = ImageTk.PhotoImage(search_image_coord)
-search_coord_button = tkb.Button(coord_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
+search_coord_button = tkb.Button(coord_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_coord_button_click, padding=(1, 1))
 search_entry_coord.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_coord_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
@@ -1985,7 +2025,7 @@ add_placeholder_to(search_entry_dept_fac, "Search for Records")
 search_image_dept_fac = Image.open("search_icon.png")
 search_image_dept_fac = search_image_dept_fac.resize((12, 12))
 search_icon_dept_fac = ImageTk.PhotoImage(search_image_dept_fac)
-search_dept_fac_button = tkb.Button(dept_fac_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_button_click, padding=(1, 1))
+search_dept_fac_button = tkb.Button(dept_fac_options_frame, text="Search", image=search_icon, compound=tk.LEFT, command=search_dept_fac_button_click, padding=(1, 1))
 search_entry_dept_fac.grid(row=0, column=0, padx=(0, 10), sticky=tk.EW)
 search_dept_fac_button.grid(row=0, column=1, padx=(0, 10), sticky=tk.E)
 
