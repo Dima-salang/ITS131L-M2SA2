@@ -153,7 +153,12 @@ def build_db(username, passwd):
 
 # function to check whether the user already initialized the app once to prevent inserting redundant dummy data
 def check_init():
-    return os.path.exists("init.flag")
+    current_directory = getattr(sys, '_MEIPASS', os.path.abspath(os.path.dirname(__file__)))
+
+    # Join the current directory with the file name
+    flag_file_path = os.path.join(current_directory, "init.flag")
+
+    return os.path.exists(flag_file_path)
 
 
 def create_dummies():
@@ -550,6 +555,8 @@ def update_data(fac_no, fac_lname, fac_fname, birth_date, hire_date):
                        (fac_lname, fac_fname, birth_date, hire_date, fac_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -766,6 +773,8 @@ def update_data_school(school_no, school_name):
                        (school_no, school_name, school_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -967,6 +976,8 @@ def update_data_payroll(payroll_no, payroll_fac_no, payroll_pay_amount, payroll_
                        (payroll_fac_no, payroll_pay_amount, payroll_from_date, payroll_to_date, payroll_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -1228,6 +1239,8 @@ def update_data_positions(positions_no, positions_fac_no, positions_position, po
                        (positions_fac_no, positions_position, positions_from_date, positions_to_date, positions_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -1491,6 +1504,8 @@ def update_data_coord(coord_no, coord_school_no, coord_fac_no, coord_from_date, 
                        (coord_school_no, coord_fac_no, coord_from_date, coord_to_date, coord_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
@@ -1753,6 +1768,8 @@ def update_data_dept_fac(dept_fac_no, dept_fac_fac_no, dept_fac_school_no, dept_
                        (dept_fac_fac_no, dept_fac_school_no, dept_fac_from_date, dept_fac_to_date, dept_fac_no))
         conn.commit()
         messagebox.showinfo("Success", "Record updated successfully!")
+    except mysql.connector.Error as err:
+        messagebox.showerror(title="Error", message=f"You cannot update records with dependencies... Error: {err}")
     finally:
         conn.close()
 
