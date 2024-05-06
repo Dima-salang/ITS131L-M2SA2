@@ -2011,9 +2011,22 @@ def dept_fac_sort_by(search_column, opt_ord):
 
 
 """ DB MANAGEMENT SECTION """
+# Treeview for displaying data for the db_tables_contents_treeview
+db_tables_contents_treeview = tkb.Treeview(db_tables_contents_frame,
+                                columns=("Table View",),
+                                show="headings", bootstyle="info")
+for col in db_tables_contents_treeview["columns"]:
+    db_tables_contents_treeview.heading(col, text=col)
+    db_tables_contents_treeview.column(col, anchor=tk.W, stretch=NO)
+db_tables_contents_treeview.grid(row=1, column=0)
 
-add_db_button = tkb.Button()
-delete_db_button = tkb.Button()
+
+selected_db = None
+
+add_db_button = tkb.Button(db_display_frame, text="Add DB")
+delete_db_button = tkb.Button(db_display_frame, text="Delete DB")
+refresh_db_button = tkb.Button(db_display_frame, text="Refresh")
+
 
 
 db_display_label = tkb.Label(db_display_frame, text="Database Name")
@@ -2022,7 +2035,11 @@ db_display_label.grid(row=0, column=0)
 db_display_entry = tkb.Entry(db_display_frame)
 db_display_entry.grid(row=1, column=0)
 
+db_table_display_label = tkb.Label(db_tables_display_frame, text="Table Name")
+db_table_display_label.grid(row=0, column=0)
 
+db_table_display_entry = tkb.Entry(db_tables_display_frame)
+db_table_display_entry.grid(row=1, column=0)
 
 
 def display_db():
@@ -2039,13 +2056,87 @@ def display_db():
 
 
 def db_select(event):
+    global selected_db
     selected_item = db_display_treeview.selection()
     if selected_item:
         values = db_display_treeview.item(selected_item[0], 'values')
         db_display_entry.delete(0, tk.END)
         db_display_entry.insert(0, values[0])
 
+        selected_db = values[0]
 
+        db_tables(values[0])
+
+
+def table_select(event):
+    global selected_db
+    selected_item = db_tables_display_treeview.selection()
+    if selected_item:
+        values = db_tables_display_treeview.item(selected_item[0], 'values')
+        db_table_display_entry.delete(0, tk.END)
+        db_table_display_entry.insert(0, values[0])
+
+        table_vals(selected_db, values[0])
+
+
+
+
+def db_tables(db_name):
+    if db_name:
+        try:
+            global username, password
+            conn = db_conn(username, password, db_name)
+            cursor = conn.cursor()
+
+            show_tables = """SHOW TABLES"""
+            cursor.execute(show_tables)
+            rows = cursor.fetchall()
+            db_tables_display_treeview.delete(*db_tables_display_treeview.get_children())
+            for row in rows:
+                db_tables_display_treeview.insert("", "end", values=row)
+            conn.close()
+        except mysql.connector.Error as err:
+            messagebox.showerror(title="Error", message=f"Error: {err}")
+
+
+def table_vals(db_name, table_name):
+    global db_tables_contents_treeview
+    if table_name:
+        try:
+            global username, password
+            conn = db_conn(username, password, db_name)
+            cursor = conn.cursor()
+
+            describe_table = f"DESCRIBE {table_name}"
+            cursor.execute(describe_table)
+            columns = [col[0] for col in cursor.fetchall()]
+
+            if db_tables_contents_treeview:
+                delete_treeview(db_tables_contents_treeview)
+            # Create a new db_tables_contents_treeview widget with the desired configuration
+            db_tables_contents_treeview = tkb.Treeview(db_tables_contents_frame,
+                                                       columns=columns,
+                                                       show="headings", bootstyle="info")
+            for col in db_tables_contents_treeview["columns"]:
+                db_tables_contents_treeview.heading(col, text=col)
+                db_tables_contents_treeview.column(col, anchor=tk.W, stretch=NO)
+            db_tables_contents_treeview.grid(row=1, column=0)
+
+            select_sql = f"SELECT * FROM {table_name}"
+            cursor.execute(select_sql)
+            rows = cursor.fetchall()
+
+            db_tables_contents_treeview.delete(*db_tables_contents_treeview.get_children())
+            for row in rows:
+                db_tables_contents_treeview.insert("", "end", values=row)
+
+            conn.close()
+        except mysql.connector.Error as err:
+            messagebox.showerror(title="Error", message=f"Error: {err}")
+
+def delete_treeview(treeview_table):
+    treeview_table.destroy()
+    treeview_table.update()
 
 # Adjusting weights for resizing behavior
 root.columnconfigure(1, weight=3)  # Give more weight to the table frame
@@ -2554,16 +2645,11 @@ db_tables_display_treeview = tkb.Treeview(db_tables_display_frame,
 for col in db_tables_display_treeview["columns"]:
     db_tables_display_treeview.heading(col, text=col)
     db_tables_display_treeview.column(col, anchor=tk.W, stretch=NO)
-db_tables_display_treeview.grid(row=1, column=0)
+db_tables_display_treeview.grid(row=2, column=0)
 
-# Treeview for displaying data for the db_tables_contents_treeview
-db_tables_contents_treeview = tkb.Treeview(db_tables_contents_frame,
-                                columns=("Table View",),
-                                show="headings", bootstyle="info")
-for col in db_tables_contents_treeview["columns"]:
-    db_tables_contents_treeview.heading(col, text=col)
-    db_tables_contents_treeview.column(col, anchor=tk.W, stretch=NO)
-db_tables_contents_treeview.grid(row=1, column=0)
+
+
+
 
 # Bind select event
 treeview.bind('<<TreeviewSelect>>', select_item)
@@ -2573,6 +2659,7 @@ positions_treeview.bind('<<TreeviewSelect>>', select_item_positions)
 coord_treeview.bind('<<TreeviewSelect>>', select_item_coord)
 dept_fac_treeview.bind('<<TreeviewSelect>>', select_item_dept_fac)
 db_display_treeview.bind('<<TreeviewSelect>>', db_select)
+db_tables_display_treeview.bind('<<TreeviewSelect>>', table_select)
 
 
 
