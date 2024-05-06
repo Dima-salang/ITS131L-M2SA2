@@ -17,8 +17,10 @@ db = "M2SA2_GRP3"
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 os.chdir(current_directory)
+
 root = tkb.Window(themename="superhero")
 root.title("CRUD Application")
+
 #slighly Edited the screen size
 root.geometry("1700x700")
 root.withdraw()
@@ -102,12 +104,27 @@ dept_fac_table_frame.grid(row=1, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 dept_fac_options_frame = tkb.Frame(dept_fac_data_frame, padding="0 8 10 10")
 dept_fac_options_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
+db_frame = tkb.Frame(crud_notebook)
+db_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_display_frame = tkb.Frame(db_frame)
+db_display_frame.grid(row=0, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_display_frame = tkb.Frame(db_frame)
+db_tables_display_frame.grid(row=0, column=1, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+db_tables_contents_frame = tkb.Frame(db_frame)
+db_tables_contents_frame.grid(row=0, column=2, sticky=(tk.N, tk.W, tk.E, tk.S))
+
+
+
 crud_notebook.add(faculty_frame, text="Faculty")
 crud_notebook.add(school_frame, text="School")
 crud_notebook.add(payroll_frame, text="Payrolls")
 crud_notebook.add(positions_frame, text="Positions")
 crud_notebook.add(coord_frame, text="Coordinators")
 crud_notebook.add(dept_fac_frame, text="Department Faculties")
+crud_notebook.add(db_frame, text="DB Management")
 
 
 # function to establish a connection to the MySQL server. Returns a connector object.
@@ -507,6 +524,8 @@ def on_tab_change(event):
             populate_table_coord()
         case 5:
             populate_table_dept_fac()
+        case 6:
+            display_db()
 
 
 def add_placeholder_to(entry: tkb.Entry, placeholder: str, color='grey'):
@@ -1991,6 +2010,43 @@ def dept_fac_sort_by(search_column, opt_ord):
         messagebox.showerror(title="Error", message=f"Error {err}")
 
 
+""" DB MANAGEMENT SECTION """
+
+add_db_button = tkb.Button()
+delete_db_button = tkb.Button()
+
+
+db_display_label = tkb.Label(db_display_frame, text="Database Name")
+db_display_label.grid(row=0, column=0)
+
+db_display_entry = tkb.Entry(db_display_frame)
+db_display_entry.grid(row=1, column=0)
+
+
+
+
+def display_db():
+    global username, password, db
+    print("display_db called")
+    conn = db_conn(username, password, db)
+    cursor = conn.cursor()
+    cursor.execute("""SHOW DATABASES""")
+    rows = cursor.fetchall()
+    db_display_treeview.delete(*db_display_treeview.get_children())
+    for row in rows:
+        db_display_treeview.insert("", "end", values=row)
+    conn.close()
+
+
+def db_select(event):
+    selected_item = db_display_treeview.selection()
+    if selected_item:
+        values = db_display_treeview.item(selected_item[0], 'values')
+        db_display_entry.delete(0, tk.END)
+        db_display_entry.insert(0, values[0])
+
+
+
 # Adjusting weights for resizing behavior
 root.columnconfigure(1, weight=3)  # Give more weight to the table frame
 root.rowconfigure(1, weight=1)
@@ -2481,6 +2537,34 @@ dept_fac_treeview.column("School Number", width=50)
 
 dept_fac_treeview.grid(row=2, column=0, sticky=(tk.N, tk.W, tk.E, tk.S))
 
+
+# Treeview for displaying data for db_display
+db_display_treeview = tkb.Treeview(db_display_frame,
+                                columns=("Database Name",),
+                                show="headings", bootstyle="info")
+for col in db_display_treeview["columns"]:
+    db_display_treeview.heading(col, text=col)
+    db_display_treeview.column(col, anchor=tk.W, stretch=NO)
+db_display_treeview.grid(row=2, column=0)
+
+# Treeview for displaying data for the db_tables_display_frame
+db_tables_display_treeview = tkb.Treeview(db_tables_display_frame,
+                                columns=("Table Name",),
+                                show="headings", bootstyle="info")
+for col in db_tables_display_treeview["columns"]:
+    db_tables_display_treeview.heading(col, text=col)
+    db_tables_display_treeview.column(col, anchor=tk.W, stretch=NO)
+db_tables_display_treeview.grid(row=1, column=0)
+
+# Treeview for displaying data for the db_tables_contents_treeview
+db_tables_contents_treeview = tkb.Treeview(db_tables_contents_frame,
+                                columns=("Table View",),
+                                show="headings", bootstyle="info")
+for col in db_tables_contents_treeview["columns"]:
+    db_tables_contents_treeview.heading(col, text=col)
+    db_tables_contents_treeview.column(col, anchor=tk.W, stretch=NO)
+db_tables_contents_treeview.grid(row=1, column=0)
+
 # Bind select event
 treeview.bind('<<TreeviewSelect>>', select_item)
 school_treeview.bind('<<TreeviewSelect>>', select_item_school)
@@ -2488,6 +2572,11 @@ payroll_treeview.bind('<<TreeviewSelect>>', select_item_payroll)
 positions_treeview.bind('<<TreeviewSelect>>', select_item_positions)
 coord_treeview.bind('<<TreeviewSelect>>', select_item_coord)
 dept_fac_treeview.bind('<<TreeviewSelect>>', select_item_dept_fac)
+db_display_treeview.bind('<<TreeviewSelect>>', db_select)
+
+
+
+
 
 crud_notebook.bind("<<NotebookTabChanged>>", on_tab_change)
 
