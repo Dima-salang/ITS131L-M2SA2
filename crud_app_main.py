@@ -109,7 +109,6 @@ crud_notebook.add(coord_frame, text="Coordinators")
 crud_notebook.add(dept_fac_frame, text="Department Faculties")
 
 
-
 # function to establish a connection to the MySQL server. Returns a connector object.
 def db_conn(username, passwd, db):
     try:
@@ -149,6 +148,7 @@ def build_db(username, passwd):
     except mysql.connector.Error as err:
         messagebox.showerror(title="Error creating database", message=f"Error creating database: {err}")
         return
+
 
 # function to check whether the user already initialized the app once to prevent inserting redundant dummy data
 def check_init():
@@ -265,7 +265,6 @@ def create_dummies():
         conn.close()
     except mysql.connector.Error as err:
         messagebox.showerror(title="Error", message=f"{err}")
-
 
 
 def create_init():
@@ -1138,7 +1137,16 @@ def payroll_sort_by(search_column, opt_ord):
         conn = db_conn(username, password, db)
         cursor = conn.cursor()
 
-        query = f""" SELECT * FROM PAYROLL ORDER BY {search_column}"""
+        query = f"""
+                        SELECT
+                        payroll_no,
+                        PAYROLL.fac_no,
+                        CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname),
+                        fac_pay,
+                        from_date, 
+                        to_date 
+                        FROM PAYROLL 
+                        INNER JOIN FACULTY ON PAYROLL.fac_no = FACULTY.fac_no ORDER BY {search_column}"""
         if opt_ord:
             query += " DESC"
         cursor.execute(query)
@@ -1383,7 +1391,16 @@ def positions_sort_by(search_column, opt_ord):
         conn = db_conn(username, password, db)
         cursor = conn.cursor()
 
-        query = f""" SELECT * FROM POSITIONS ORDER BY {search_column}"""
+        query = f"""
+                    SELECT
+                    positions_no, 
+                    POSITIONS.fac_no, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name, 
+                    POSITIONS.pos, 
+                    POSITIONS.from_date, 
+                    POSITIONS.to_date 
+                    FROM POSITIONS 
+                    INNER JOIN FACULTY ON POSITIONS.fac_no = FACULTY.fac_no ORDER BY {search_column}"""
         if opt_ord:
             query += " DESC"
         cursor.execute(query)
@@ -1625,7 +1642,16 @@ def coord_sort_by(search_column, opt_ord):
         conn = db_conn(username, password, db)
         cursor = conn.cursor()
 
-        query = f""" SELECT * FROM COORD ORDER BY {search_column}"""
+        query = f"""SELECT 
+                    COORD.coord_no, 
+                    COORD.school_no, 
+                    COORD.fac_no, 
+                    SCHOOL.school_name, 
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname), 
+                    COORD.from_date, COORD.to_date 
+                    FROM COORD
+                    INNER JOIN FACULTY ON COORD.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON COORD.school_no = SCHOOL.school_no ORDER BY {search_column}"""
         if opt_ord:
             query += " DESC"
         cursor.execute(query)
@@ -1874,7 +1900,18 @@ def dept_fac_sort_by(search_column, opt_ord):
         conn = db_conn(username, password, db)
         cursor = conn.cursor()
 
-        query = f"""SELECT * FROM DEPT_FAC ORDER BY {search_column}"""
+        query = f"""
+                    SELECT
+                    DEPT_FAC.dept_fac_no,
+                    DEPT_FAC.fac_no,
+                    DEPT_FAC.school_no,
+                    SCHOOL.school_name,
+                    CONCAT(FACULTY.fac_fname, ' ', FACULTY.fac_lname) AS full_name,
+                    DEPT_FAC.from_date,
+                    DEPT_FAC.to_date
+                    FROM DEPT_FAC
+                    INNER JOIN FACULTY ON DEPT_FAC.fac_no = FACULTY.fac_no
+                    INNER JOIN SCHOOL ON DEPT_FAC.school_no = SCHOOL.school_no ORDER BY {search_column}"""
         if opt_ord:
             query += " DESC"
         cursor.execute(query)
@@ -2341,6 +2378,7 @@ for col in payroll_treeview["columns"]:
 payroll_treeview.column("Payroll Number", width=40)
 payroll_treeview.column("Faculty Number", width=40)
 payroll_treeview.grid(row=2, column=0)
+
 
 positions_treeview = tkb.Treeview(positions_table_frame,
                                   columns=("Position Number", "Faculty Number", "Full Name", "Position", "From Date", "To Date"),
