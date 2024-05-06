@@ -1147,6 +1147,9 @@ def clear_entries_payroll():
     for entry in [payroll_no_entry, payroll_fac_no_entry, payroll_pay_amount_entry, payroll_from_date_entry,
                   payroll_to_date_entry]:
         entry.delete(0, tk.END)
+    payroll_no_entry.configure(state=NORMAL)
+    payroll_no_entry.delete(0, tk.END)
+    payroll_no_entry.configure(state='readonly')
 
 
 def populate_table_payroll():
@@ -2376,7 +2379,7 @@ def table_select(event):
         table_vals(selected_db, values[0])
 
 
-def db_tables(db_name):
+def db_tables(db_name=selected_db):
     if db_name:
         try:
             global username, password
@@ -2447,7 +2450,7 @@ refresh_db_button = tkb.Button(
 rename_table_button = tkb.Button(
     db_tables_display_buttons_frame, text="Rename", command=show_rename_tb)
 refresh_tb_button = tkb.Button(
-    db_tables_display_buttons_frame, text="Refresh", command=db_tables)
+    db_tables_display_buttons_frame, text="Refresh", command=lambda: db_tables(selected_db))
 add_table_button = tkb.Button(db_tables_contents_buttons_frame, text="Add Table", command=add_table)
 delete_table_button = tkb.Button(db_tables_contents_buttons_frame, text="Delete Table", command=delete_table)
 
